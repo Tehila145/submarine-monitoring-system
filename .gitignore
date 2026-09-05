@@ -1,0 +1,6 @@
+.DS_Store
+/tmp/
+*.o
+*.elf
+*.hex
+build/
