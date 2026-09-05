@@ -1,0 +1,826 @@
+<title>Submarine System Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef2f5; --surface:#ffffff; --surface-2:#f4f7f9;
+    --ink:#0d1b28; --ink-soft:#45586a; --ink-faint:#74889a;
+    --border:#d5dee4; --border-strong:#b9c7d1;
+    --accent:#0c7b90; --accent-ink:#095c6c; --accent-wash:#e2f0f2;
+    --normal:#2f9e5f; --warning:#c07f14; --error:#cf4436;
+    --normal-wash:#e7f4ec; --warning-wash:#f8efdc; --error-wash:#f9e7e4;
+    --code-bg:#eef3f5; --shadow:0 1px 2px rgba(13,27,40,.06),0 6px 20px rgba(13,27,40,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0a141e; --surface:#10202d; --surface-2:#132635;
+      --ink:#dce7ef; --ink-soft:#9db1c1; --ink-faint:#6c8195;
+      --border:#213a4c; --border-strong:#2c4a5f;
+      --accent:#28b6cc; --accent-ink:#7fd8e6; --accent-wash:#10333c;
+      --normal:#49c281; --warning:#e0a63c; --error:#e56b5d;
+      --normal-wash:#122c22; --warning-wash:#2e2716; --error-wash:#331c1a;
+      --code-bg:#0c1e2b; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a141e; --surface:#10202d; --surface-2:#132635;
+    --ink:#dce7ef; --ink-soft:#9db1c1; --ink-faint:#6c8195;
+    --border:#213a4c; --border-strong:#2c4a5f;
+    --accent:#28b6cc; --accent-ink:#7fd8e6; --accent-wash:#10333c;
+    --normal:#49c281; --warning:#e0a63c; --error:#e56b5d;
+    --normal-wash:#122c22; --warning-wash:#2e2716; --error-wash:#331c1a;
+    --code-bg:#0c1e2b; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.62; margin:0; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,48px)}
+
+  /* ---- Masthead ---- */
+  header.mast{
+    border-bottom:1px solid var(--border);
+    background:
+      radial-gradient(120% 140% at 88% -20%, var(--accent-wash) 0%, transparent 55%),
+      var(--surface);
+  }
+  .mast .wrap{padding-top:44px;padding-bottom:38px}
+  .docid{
+    font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-ink);font-weight:500;
+    display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  }
+  .docid .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  h1{
+    font-size:clamp(30px,5vw,46px);line-height:1.06;font-weight:700;
+    letter-spacing:-.02em;margin:16px 0 10px;text-wrap:balance;
+  }
+  .subtitle{font-size:clamp(16px,2.2vw,19px);color:var(--ink-soft);max-width:60ch;margin:0}
+  .mast-meta{
+    display:flex;gap:26px;flex-wrap:wrap;margin-top:24px;
+    font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);
+  }
+  .mast-meta b{color:var(--ink);font-weight:600}
+
+  /* ---- TOC ---- */
+  nav.toc{
+    background:var(--surface-2);border-bottom:1px solid var(--border);
+    font-family:"IBM Plex Mono",monospace;font-size:12.5px;
+  }
+  nav.toc .wrap{display:flex;gap:8px 26px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px}
+  nav.toc a{color:var(--ink-soft);text-decoration:none;white-space:nowrap}
+  nav.toc a:hover{color:var(--accent-ink)}
+  nav.toc .lead{color:var(--accent-ink);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+
+  /* ---- Sections ---- */
+  main .wrap{padding-top:8px;padding-bottom:64px}
+  .part-tag{
+    display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:12px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--surface);
+    background:var(--accent);padding:5px 12px;border-radius:4px;font-weight:600;
+    margin:56px 0 6px;
+  }
+  section{padding-top:26px}
+  h2{
+    font-size:clamp(22px,3.2vw,29px);font-weight:700;letter-spacing:-.015em;
+    margin:18px 0 4px;padding-bottom:10px;border-bottom:2px solid var(--border-strong);
+    text-wrap:balance;
+  }
+  h2 .num{font-family:"IBM Plex Mono",monospace;color:var(--accent-ink);font-weight:500;margin-right:12px;font-size:.82em}
+  h3{font-size:18px;font-weight:600;margin:30px 0 6px;letter-spacing:-.01em}
+  h4{font-size:14.5px;font-weight:600;margin:20px 0 4px;color:var(--ink);
+     font-family:"IBM Plex Mono",monospace;letter-spacing:.02em}
+  p{max-width:70ch}
+  p,li{color:var(--ink)}
+  .lead-p{font-size:16.5px;color:var(--ink-soft);max-width:72ch}
+  ul,ol{max-width:72ch;padding-left:22px}
+  li{margin:5px 0}
+  strong{font-weight:600}
+  a{color:var(--accent-ink)}
+  code{
+    font-family:"IBM Plex Mono",monospace;font-size:.86em;background:var(--code-bg);
+    padding:.12em .4em;border-radius:4px;border:1px solid var(--border);
+  }
+
+  /* ---- Callouts ---- */
+  .note{
+    border:1px solid var(--border);border-left:3px solid var(--accent);
+    background:var(--surface-2);border-radius:8px;padding:14px 18px;margin:20px 0;
+    max-width:74ch;
+  }
+  .note .lbl{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--accent-ink);font-weight:600;display:block;margin-bottom:4px}
+  .note.q{border-left-color:var(--warning)}
+  .note.q .lbl{color:var(--warning)}
+  .note p{margin:.3em 0;max-width:none}
+
+  /* ---- Cards / grids ---- */
+  .grid{display:grid;gap:16px;margin:22px 0}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:16px 18px;box-shadow:var(--shadow);
+  }
+  .card h4{margin-top:0;color:var(--accent-ink)}
+  .card p{margin:.35em 0;font-size:14.5px;color:var(--ink-soft);max-width:none}
+  .card .mid{font-size:13px;font-family:"IBM Plex Mono",monospace;color:var(--ink-faint);
+    text-transform:uppercase;letter-spacing:.08em}
+
+  /* ---- Tables ---- */
+  .tablewrap{overflow-x:auto;margin:22px 0;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;font-size:14px;background:var(--surface)}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:var(--surface-2);font-weight:600;font-size:12.5px;letter-spacing:.03em;
+     text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+  tbody tr:last-child td{border-bottom:none}
+  td code{white-space:nowrap}
+  .mono-col{font-family:"IBM Plex Mono",monospace;font-size:13px;white-space:nowrap;color:var(--accent-ink)}
+
+  /* mode pills */
+  .pill{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;
+    padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+  .pill.n{background:var(--normal-wash);color:var(--normal)}
+  .pill.w{background:var(--warning-wash);color:var(--warning)}
+  .pill.e{background:var(--error-wash);color:var(--error)}
+
+  /* ---- Code blocks ---- */
+  pre{
+    background:var(--code-bg);border:1px solid var(--border);border-radius:10px;
+    padding:16px 18px;overflow-x:auto;margin:18px 0;box-shadow:var(--shadow);
+  }
+  pre code{background:none;border:none;padding:0;font-size:13px;line-height:1.6;color:var(--ink)}
+  .cmt{color:var(--ink-faint)}
+  .kw{color:var(--accent-ink);font-weight:600}
+
+  /* ---- Figures ---- */
+  figure{margin:26px 0;background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:22px 20px 12px;box-shadow:var(--shadow);overflow-x:auto}
+  figure svg{display:block;max-width:100%;height:auto;margin:0 auto;color:var(--ink)}
+  figcaption{font-size:13px;color:var(--ink-faint);margin-top:12px;text-align:center;
+    font-family:"IBM Plex Mono",monospace;line-height:1.5}
+  figcaption b{color:var(--ink-soft);font-weight:600}
+
+  .svg-fill-surface{fill:var(--surface)}
+  .svg-fill-s2{fill:var(--surface-2)}
+  .svg-stroke{stroke:var(--border-strong)}
+  .svg-mono{font-family:"IBM Plex Mono",monospace}
+  .svg-sans{font-family:"IBM Plex Sans",sans-serif}
+
+  hr.div{border:none;border-top:1px solid var(--border);margin:44px 0}
+  footer{border-top:1px solid var(--border);background:var(--surface-2)}
+  footer .wrap{padding:22px 0 30px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
+
+  @media (prefers-reduced-motion:no-preference){
+    nav.toc a{transition:color .15s ease}
+  }
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="docid"><span class="dot"></span>SW-AD-LNC-001 &nbsp;·&nbsp; Architecture &amp; Design</div>
+    <h1>Submarine Monitoring System — Architecture Blueprint</h1>
+    <p class="subtitle">Design reference for the two build targets: the LNC end unit firmware on STM32&nbsp;Nucleo (C), and the Fleet Management console in C++.</p>
+    <div class="mast-meta">
+      <span>PART 1 &nbsp;<b>LNC firmware · C · Nucleo</b></span>
+      <span>PART 2 &nbsp;<b>Fleet Mgmt · C++</b></span>
+      <span>SCOPE &nbsp;<b>design only — no timeline</b></span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <span class="lead">Part 1 · LNC</span>
+    <a href="#context">1 Context</a>
+    <a href="#exec">2 Execution model</a>
+    <a href="#modules">3 Module map</a>
+    <a href="#modes">4 Operating modes</a>
+    <a href="#data">5 Data structures</a>
+    <a href="#tlv">6 TLV protocol</a>
+    <a href="#comm">7 Comm interface</a>
+    <a href="#persist">8 Persistence</a>
+    <a href="#hw">9 Hardware</a>
+    <a href="#upstream">10 Central / Ground</a>
+    <span class="lead">Part 2 · Fleet</span>
+    <a href="#classes">11 Class model</a>
+    <a href="#menu">12 Menu map</a>
+    <a href="#oop">13 OOP mechanics</a>
+    <a href="#open">Open questions</a>
+  </div>
+</nav>
+
+<main>
+<div class="wrap">
+
+  <span class="part-tag">Part 1 — LNC End Unit · STM32 Nucleo · C</span>
+
+  <!-- ============ 1. CONTEXT ============ -->
+  <section id="context">
+    <h2><span class="num">1</span>System context</h2>
+    <p class="lead-p">The Local Node Controller (LNC) is one end unit inside the submarine. It carries the environmental sensors, watches the battery and the sonar, and reports to the Central Computer, which in turn answers to the Ground Station on shore.</p>
+    <p>The LNC never talks to the Ground Station directly. Its whole outside world is the Central Computer, reached through a single transport-independent link. Everything the LNC produces — keep-alives, events, data reports — flows up that one link; everything it obeys — configuration, RTC set, data requests — comes back down it.</p>
+
+    <figure>
+      <svg viewBox="0 0 860 430" role="img" aria-label="System context: Ground Station over Ethernet to the Central Computer, which manages the LNC end unit and other end units; the LNC hosts temperature, humidity, light, battery and sonar sensors.">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+        <!-- Ground Station -->
+        <rect x="600" y="24" width="230" height="66" rx="9" class="svg-fill-s2 svg-stroke" stroke-width="1.5"/>
+        <text x="715" y="52" text-anchor="middle" class="svg-sans" font-size="15" font-weight="700" fill="currentColor">Ground Station</text>
+        <text x="715" y="72" text-anchor="middle" class="svg-mono" font-size="11" fill="var(--ink-faint)">commands · data retrieval</text>
+        <!-- Central Computer -->
+        <rect x="315" y="150" width="230" height="78" rx="9" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="2"/>
+        <text x="430" y="182" text-anchor="middle" class="svg-sans" font-size="15" font-weight="700" fill="currentColor">Central Computer</text>
+        <text x="430" y="202" text-anchor="middle" class="svg-mono" font-size="11" fill="var(--ink-faint)">manages all end units</text>
+        <text x="430" y="217" text-anchor="middle" class="svg-mono" font-size="11" fill="var(--ink-faint)">stores 7 days of data</text>
+        <!-- other end units -->
+        <rect x="620" y="168" width="120" height="42" rx="7" class="svg-fill-surface svg-stroke" stroke-width="1.2" stroke-dasharray="4 3"/>
+        <text x="680" y="193" text-anchor="middle" class="svg-mono" font-size="11" fill="var(--ink-soft)">Motor / Nav</text>
+        <!-- LNC -->
+        <rect x="40" y="150" width="210" height="78" rx="9" fill="var(--normal-wash)" stroke="var(--normal)" stroke-width="2"/>
+        <text x="145" y="182" text-anchor="middle" class="svg-sans" font-size="15" font-weight="700" fill="currentColor">LNC End Unit</text>
+        <text x="145" y="202" text-anchor="middle" class="svg-mono" font-size="11" fill="var(--ink-faint)">this document</text>
+        <text x="145" y="217" text-anchor="middle" class="svg-mono" font-size="11" fill="var(--ink-faint)">Local Node Controller</text>
+        <!-- sensors -->
+        <g class="svg-mono" font-size="10.5" fill="var(--ink-soft)">
+          <rect x="12" y="320" width="86" height="34" rx="6" class="svg-fill-s2 svg-stroke" stroke-width="1"/><text x="55" y="341" text-anchor="middle">Temp</text>
+          <rect x="106" y="320" width="86" height="34" rx="6" class="svg-fill-s2 svg-stroke" stroke-width="1"/><text x="149" y="341" text-anchor="middle">Humidity</text>
+          <rect x="200" y="320" width="72" height="34" rx="6" class="svg-fill-s2 svg-stroke" stroke-width="1"/><text x="236" y="341" text-anchor="middle">Light</text>
+          <rect x="60" y="368" width="86" height="34" rx="6" class="svg-fill-s2 svg-stroke" stroke-width="1"/><text x="103" y="389" text-anchor="middle">Battery</text>
+          <rect x="154" y="368" width="118" height="34" rx="6" class="svg-fill-s2 svg-stroke" stroke-width="1"/><text x="213" y="389" text-anchor="middle">Sonar (object)</text>
+        </g>
+        <!-- links -->
+        <line x1="600" y1="60" x2="548" y2="150" stroke="currentColor" stroke-width="1.6" marker-end="url(#ah)" marker-start="url(#ah)"/>
+        <text x="612" y="118" class="svg-mono" font-size="10.5" fill="var(--accent-ink)">Ethernet</text>
+        <line x1="315" y1="196" x2="252" y2="192" stroke="var(--accent)" stroke-width="2" marker-end="url(#ah)" marker-start="url(#ah)"/>
+        <text x="258" y="165" class="svg-mono" font-size="10.5" fill="var(--accent-ink)">UART / Ethernet</text>
+        <text x="258" y="179" class="svg-mono" font-size="10.5" fill="var(--ink-faint)">TLV messages</text>
+        <line x1="545" y1="189" x2="620" y2="189" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+        <!-- sensor links -->
+        <g stroke="var(--ink-faint)" stroke-width="1.2" marker-end="url(#ah)">
+          <line x1="70" y1="320" x2="120" y2="230"/>
+          <line x1="149" y1="320" x2="145" y2="230"/>
+          <line x1="230" y1="320" x2="165" y2="230"/>
+          <line x1="103" y1="368" x2="130" y2="230"/>
+          <line x1="205" y1="368" x2="180" y2="230"/>
+        </g>
+      </svg>
+      <figcaption><b>Figure 1.</b> The LNC's only peer is the Central Computer; the Ground Station is reached only through it.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ 2. EXECUTION MODEL ============ -->
+  <section id="exec">
+    <h2><span class="num">2</span>Execution model</h2>
+    <p class="lead-p">The nine modules are logically concurrent: sampling runs every 5&nbsp;s, keep-alive every 6&nbsp;s, the sonar listens continuously, events arrive asynchronously, and the watchdog must be fed on time regardless of load. Two execution models can carry this; the module logic below is written to be independent of which you pick.</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>Recommended — FreeRTOS</h4>
+        <p class="mid">tasks + queues</p>
+        <p>Each module becomes a task; inter-module traffic is FreeRTOS queues. The Communication send-priority (keep-alive&nbsp;&gt;&nbsp;event&nbsp;&gt;&nbsp;data) maps directly onto three queues drained in order, or task priorities. Periodic work uses <code>vTaskDelayUntil</code>; the sonar task blocks on its interrupt. This matches the spec's "modules exchanging messages" model almost one-to-one.</p>
+      </div>
+      <div class="card">
+        <h4>Alternative — super-loop + scheduler</h4>
+        <p class="mid">cooperative, timer-driven</p>
+        <p>A cooperative scheduler runs periodic slots (5&nbsp;s Monitor, 6&nbsp;s Keep-Alive) off a timer tick; a single event ring-buffer is drained in <code>main()</code>; the sonar sets a flag from its EXTI/timer ISR. Lighter and fully deterministic, but you hand-manage timing and the priority queue yourself.</p>
+      </div>
+    </div>
+    <div class="note">
+      <span class="lbl">Design invariant</span>
+      <p>Modules communicate only through <b>message queues + shared, mutex-guarded state</b> (latest measurement, current mode, config). No module calls another's internals directly. This is what lets the same module code sit on either execution model — and it is what the "transport-independent" note in the spec is really asking for at the system level.</p>
+    </div>
+  </section>
+
+  <!-- ============ 3. MODULE MAP ============ -->
+  <section id="modules">
+    <h2><span class="num">3</span>Module map</h2>
+    <p class="lead-p">Nine modules. Producers on top sense and decide; the two sinks — Event and Log — record and react; Communication is the one gateway to the Central Computer.</p>
+
+    <figure>
+      <svg viewBox="0 0 880 420" role="img" aria-label="Module interaction: Monitor, Object Detection, Init and Configuration feed the Event module and Log module; Communication is the gateway; Keep-Alive and Watchdog run on timers.">
+        <defs>
+          <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+        <!-- Comm gateway top -->
+        <rect x="330" y="16" width="220" height="52" rx="9" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="2"/>
+        <text x="440" y="40" text-anchor="middle" class="svg-sans" font-size="14" font-weight="700" fill="currentColor">Communication</text>
+        <text x="440" y="57" text-anchor="middle" class="svg-mono" font-size="10.5" fill="var(--ink-faint)">gateway · TX priority queue</text>
+        <text x="440" y="8" text-anchor="middle" class="svg-mono" font-size="10" fill="var(--accent-ink)">↕ Central Computer</text>
+
+        <!-- producer row -->
+        <g class="svg-mono" font-size="11">
+          <rect x="20"  y="120" width="120" height="52" rx="8" class="svg-fill-surface svg-stroke" stroke-width="1.3"/>
+          <text x="80"  y="142" text-anchor="middle" class="svg-sans" font-size="12.5" font-weight="600" fill="currentColor">Monitor</text>
+          <text x="80"  y="159" text-anchor="middle" fill="var(--ink-faint)">5 s sample</text>
+
+          <rect x="160" y="120" width="130" height="52" rx="8" class="svg-fill-surface svg-stroke" stroke-width="1.3"/>
+          <text x="225" y="142" text-anchor="middle" class="svg-sans" font-size="12.5" font-weight="600" fill="currentColor">Object Detect</text>
+          <text x="225" y="159" text-anchor="middle" fill="var(--ink-faint)">sonar</text>
+
+          <rect x="310" y="120" width="120" height="52" rx="8" class="svg-fill-surface svg-stroke" stroke-width="1.3"/>
+          <text x="370" y="142" text-anchor="middle" class="svg-sans" font-size="12.5" font-weight="600" fill="currentColor">Configuration</text>
+          <text x="370" y="159" text-anchor="middle" fill="var(--ink-faint)">limits · Flash</text>
+
+          <rect x="450" y="120" width="110" height="52" rx="8" class="svg-fill-surface svg-stroke" stroke-width="1.3"/>
+          <text x="505" y="142" text-anchor="middle" class="svg-sans" font-size="12.5" font-weight="600" fill="currentColor">Init</text>
+          <text x="505" y="159" text-anchor="middle" fill="var(--ink-faint)">startup + sync</text>
+
+          <rect x="580" y="120" width="120" height="52" rx="8" class="svg-fill-surface svg-stroke" stroke-width="1.3"/>
+          <text x="640" y="142" text-anchor="middle" class="svg-sans" font-size="12.5" font-weight="600" fill="currentColor">Keep-Alive</text>
+          <text x="640" y="159" text-anchor="middle" fill="var(--ink-faint)">6 s status</text>
+
+          <rect x="720" y="120" width="140" height="52" rx="8" class="svg-fill-surface svg-stroke" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="790" y="142" text-anchor="middle" class="svg-sans" font-size="12.5" font-weight="600" fill="currentColor">Watchdog</text>
+          <text x="790" y="159" text-anchor="middle" fill="var(--ink-faint)">HW IWDG only</text>
+        </g>
+
+        <!-- sinks -->
+        <rect x="205" y="300" width="190" height="60" rx="9" fill="var(--warning-wash)" stroke="var(--warning)" stroke-width="1.8"/>
+        <text x="300" y="326" text-anchor="middle" class="svg-sans" font-size="13.5" font-weight="700" fill="currentColor">Event Module</text>
+        <text x="300" y="345" text-anchor="middle" class="svg-mono" font-size="10.5" fill="var(--ink-faint)">LED · alarm · events file</text>
+
+        <rect x="470" y="300" width="190" height="60" rx="9" fill="var(--normal-wash)" stroke="var(--normal)" stroke-width="1.8"/>
+        <text x="565" y="326" text-anchor="middle" class="svg-sans" font-size="13.5" font-weight="700" fill="currentColor">Log Module</text>
+        <text x="565" y="345" text-anchor="middle" class="svg-mono" font-size="10.5" fill="var(--ink-faint)">7-day measurement history</text>
+
+        <!-- arrows producers -> event -->
+        <g stroke="currentColor" stroke-width="1.4" marker-end="url(#ah2)" fill="none">
+          <path d="M80,172 C80,240 250,250 270,300"/>
+          <path d="M225,172 C225,235 285,255 295,300"/>
+          <path d="M370,172 C370,240 330,255 320,300"/>
+          <path d="M505,172 C505,250 380,255 350,300"/>
+        </g>
+        <!-- monitor -> log -->
+        <path d="M110,172 C160,270 470,250 505,300" stroke="var(--normal)" stroke-width="1.4" marker-end="url(#ah2)" fill="none"/>
+        <!-- event & log & keepalive -> comm -->
+        <g stroke="var(--accent)" stroke-width="1.6" marker-end="url(#ah2)" fill="none">
+          <path d="M340,300 C420,210 430,120 435,68"/>
+          <path d="M600,300 C560,180 470,110 455,68"/>
+          <path d="M640,120 C610,90 500,72 552,52"/>
+        </g>
+        <text x="150" y="255" class="svg-mono" font-size="10" fill="var(--ink-faint)">events</text>
+        <text x="600" y="250" class="svg-mono" font-size="10" fill="var(--normal)">measurements</text>
+      </svg>
+      <figcaption><b>Figure 2.</b> Message flow between the nine modules. Coloured edges reach the Communication gateway.</figcaption>
+    </figure>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Module</th><th>Fires when</th><th>Responsibility</th></tr></thead>
+        <tbody>
+          <tr><td class="mono-col">Monitor</td><td>every 5&nbsp;s</td><td>Sample temp / humidity / light / battery (ADC potentiometer). Compare each to its limits → per-value mode. Send measurement + mode to <b>Log</b>; on a mode change send the values to <b>Event</b>.</td></tr>
+          <tr><td class="mono-col">Object&nbsp;Detection</td><td>continuous</td><td>Listen on the sonar in the direction of travel. On new detection → Event; on a previously-detected object clearing → Event.</td></tr>
+          <tr><td class="mono-col">Event</td><td>on any event</td><td>Timestamp on arrival, then branch on source (see §4). Drives RGB LED + alarm, writes the events file, sends a message to the Central Computer.</td></tr>
+          <tr><td class="mono-col">Log</td><td>on measurement</td><td>Build a log line (timestamp + data + mode), append to the day's file, keep 7 files, delete the oldest on day 8.</td></tr>
+          <tr><td class="mono-col">Communication</td><td>TX + RX</td><td>The only gateway. Encodes/decodes TLV, dispatches received commands, sends outbound by priority: keep-alive&nbsp;&gt;&nbsp;event&nbsp;&gt;&nbsp;data.</td></tr>
+          <tr><td class="mono-col">Configuration</td><td>on cmd / boot</td><td>Owns all limit values. Applies config changes from Comm, persists to Flash, loads on boot (defaults + write-back on first boot). Emits a "config changed" event.</td></tr>
+          <tr><td class="mono-col">Init</td><td>startup</td><td>Bring up peripherals, load config, request RTC sync via Comm, emit startup event (incl. whether a WD reset preceded it), then start all activity.</td></tr>
+          <tr><td class="mono-col">Keep-Alive</td><td>every 6&nbsp;s</td><td>Send keep-alive (timestamp + latest measurement + current mode) to the Central Computer at highest priority.</td></tr>
+          <tr><td class="mono-col">Watchdog</td><td>on schedule</td><td>Refresh the hardware IWDG on time so a hang triggers a reset. Optionally gate the kick on other tasks' liveness.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 4. MODES ============ -->
+  <section id="modes">
+    <h2><span class="num">4</span>Operating modes &amp; the Event decision</h2>
+    <p class="lead-p">The Monitor sets the mode by comparing each measurement to its limits. The overall mode is the <b>worst</b> of the four: <span class="pill e">Error</span> if any value is in error, else <span class="pill w">Warning</span> if any is in warning, else <span class="pill n">Normal</span>. The Event module reacts only to <em>transitions</em>.</p>
+
+    <div class="note">
+      <span class="lbl">Limit shape — watch this</span>
+      <p>Temperature is a <b>range</b> (Normal min–max and Warning min–max) — both too-cold and too-hot matter. Humidity, light and battery are <b>lower boundaries</b> only: above the Normal floor is Normal, between the Warning and Normal floors is Warning, below the Warning floor is Error. Your comparison function must handle the two shapes differently.</p>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 820 300" role="img" aria-label="Mode state machine between Normal, Warning and Error, with the LED colour and alarm action on each transition.">
+        <defs>
+          <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+        <circle cx="130" cy="150" r="66" fill="var(--normal-wash)" stroke="var(--normal)" stroke-width="2.5"/>
+        <text x="130" y="146" text-anchor="middle" class="svg-sans" font-size="16" font-weight="700" fill="currentColor">Normal</text>
+        <text x="130" y="166" text-anchor="middle" class="svg-mono" font-size="10" fill="var(--ink-faint)">all in range</text>
+
+        <circle cx="410" cy="150" r="66" fill="var(--warning-wash)" stroke="var(--warning)" stroke-width="2.5"/>
+        <text x="410" y="146" text-anchor="middle" class="svg-sans" font-size="16" font-weight="700" fill="currentColor">Warning</text>
+        <text x="410" y="166" text-anchor="middle" class="svg-mono" font-size="10" fill="var(--ink-faint)">≥1 in warning</text>
+
+        <circle cx="690" cy="150" r="66" fill="var(--error-wash)" stroke="var(--error)" stroke-width="2.5"/>
+        <text x="690" y="146" text-anchor="middle" class="svg-sans" font-size="16" font-weight="700" fill="currentColor">Error</text>
+        <text x="690" y="166" text-anchor="middle" class="svg-mono" font-size="10" fill="var(--ink-faint)">≥1 in error</text>
+
+        <!-- N<->W -->
+        <path d="M196,132 C270,108 336,108 344,124" stroke="var(--warning)" stroke-width="2" fill="none" marker-end="url(#ah3)"/>
+        <text x="270" y="104" text-anchor="middle" class="svg-mono" font-size="10.5" fill="var(--warning)">LED yellow</text>
+        <path d="M344,176 C336,192 270,192 196,168" stroke="var(--normal)" stroke-width="2" fill="none" marker-end="url(#ah3)"/>
+        <text x="270" y="205" text-anchor="middle" class="svg-mono" font-size="10.5" fill="var(--normal)">LED green</text>
+
+        <!-- W<->E -->
+        <path d="M476,132 C550,108 616,108 624,124" stroke="var(--error)" stroke-width="2" fill="none" marker-end="url(#ah3)"/>
+        <text x="550" y="104" text-anchor="middle" class="svg-mono" font-size="10.5" fill="var(--error)">LED red · alarm on</text>
+        <path d="M624,176 C616,192 550,192 476,168" stroke="var(--warning)" stroke-width="2" fill="none" marker-end="url(#ah3)"/>
+        <text x="550" y="205" text-anchor="middle" class="svg-mono" font-size="10.5" fill="var(--warning)">LED yellow · stop alarm</text>
+
+        <!-- N->E arc -->
+        <path d="M150,88 C330,-6 560,4 700,84" stroke="var(--error)" stroke-width="2" fill="none" marker-end="url(#ah3)"/>
+        <text x="410" y="26" text-anchor="middle" class="svg-mono" font-size="10.5" fill="var(--error)">any value → error : LED red · alarm on</text>
+        <!-- E->N arc -->
+        <path d="M672,214 C520,296 300,296 148,214" stroke="var(--normal)" stroke-width="2" fill="none" marker-end="url(#ah3)"/>
+        <text x="410" y="288" text-anchor="middle" class="svg-mono" font-size="10.5" fill="var(--normal)">all values → normal : LED green · stop alarm</text>
+      </svg>
+      <figcaption><b>Figure 3.</b> Every transition writes to the events file <em>and</em> sends a message to the Central Computer. The button stops the alarm while Error persists.</figcaption>
+    </figure>
+
+    <h3>Event module — actions by source</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>From Monitor (mode transition)</h4>
+        <p><span class="pill w">→Warning</span> from Normal: LED yellow. From Error: LED yellow, stop alarm if active, resume full operation.</p>
+        <p><span class="pill e">→Error</span>: LED red, alarm on, button stops alarm, suppress non-essential ops.</p>
+        <p><span class="pill n">→Normal</span>: LED green; from Error also stop alarm &amp; resume.</p>
+      </div>
+      <div class="card">
+        <h4>From Object Detection</h4>
+        <p><b>Detected:</b> LED red, alarm on, write events file, notify Central, button stops alarm.</p>
+        <p><b>Cleared:</b> LED green, stop alarm if active, write events file, notify Central.</p>
+      </div>
+      <div class="card">
+        <h4>From Configuration</h4>
+        <p>Write a timestamped line to the events file. No LED / alarm effect.</p>
+      </div>
+      <div class="card">
+        <h4>From Init</h4>
+        <p>Write a startup line to the events file, recording whether the boot followed a <b>watchdog reset</b>.</p>
+      </div>
+    </div>
+    <div class="note">
+      <span class="lbl">Always</span>
+      <p>For every event, regardless of source, the Event module writes a timestamped record to the events file and sends a corresponding message to the Central Computer.</p>
+    </div>
+  </section>
+
+  <!-- ============ 5. DATA STRUCTURES ============ -->
+  <section id="data">
+    <h2><span class="num">5</span>Core data structures</h2>
+    <p class="lead-p">Three shared records carry almost everything: the persisted configuration, a single measurement snapshot, and the event queued to the Event module. Keep them plain C structs so they serialize cleanly into TLV and into Flash.</p>
+<pre><code><span class="cmt">/* ---- persisted in Flash; loaded (or defaulted) at boot ---- */</span>
+<span class="kw">typedef struct</span> {
+    <span class="kw">uint32_t</span> magic;              <span class="cmt">// sentinel: distinguishes first boot from valid data</span>
+    <span class="cmt">/* temperature is a RANGE (both bounds) */</span>
+    <span class="kw">int16_t</span>  temp_norm_lo, temp_norm_hi;
+    <span class="kw">int16_t</span>  temp_warn_lo, temp_warn_hi;
+    <span class="cmt">/* the rest are LOWER boundaries only */</span>
+    <span class="kw">uint16_t</span> hum_norm_lo,  hum_warn_lo;
+    <span class="kw">uint16_t</span> light_norm_lo, light_warn_lo;
+    <span class="kw">uint16_t</span> batt_norm_lo, batt_warn_lo;   <span class="cmt">// ADC / potentiometer counts or mV</span>
+} lnc_config_t;
+
+<span class="kw">typedef enum</span> { MODE_NORMAL = 0, MODE_WARNING, MODE_ERROR } lnc_mode_t;
+
+<span class="cmt">/* ---- one sensor snapshot; shared "latest" copy is mutex-guarded ---- */</span>
+<span class="kw">typedef struct</span> {
+    <span class="kw">uint32_t</span>  ts;          <span class="cmt">// RTC epoch seconds</span>
+    <span class="kw">int16_t</span>   temperature;
+    <span class="kw">uint16_t</span>  humidity;
+    <span class="kw">uint16_t</span>  light;
+    <span class="kw">uint16_t</span>  battery;
+    lnc_mode_t mode;        <span class="cmt">// worst-of the four</span>
+} measurement_t;
+
+<span class="cmt">/* ---- queued to the Event module; timestamped on arrival ---- */</span>
+<span class="kw">typedef enum</span> { SRC_MONITOR, SRC_OBJECT, SRC_CONFIG, SRC_INIT } evt_src_t;
+<span class="kw">typedef struct</span> {
+    evt_src_t  src;
+    <span class="kw">uint32_t</span>   ts;
+    <span class="kw">union</span> {
+        <span class="kw">struct</span> { lnc_mode_t from, to; measurement_t m; } transition;  <span class="cmt">// SRC_MONITOR</span>
+        <span class="kw">struct</span> { <span class="kw">uint8_t</span> detected; } object;                       <span class="cmt">// SRC_OBJECT (1=det,0=clear)</span>
+        <span class="kw">struct</span> { <span class="kw">uint8_t</span> after_wd_reset; } startup;                 <span class="cmt">// SRC_INIT</span>
+    } data;
+} lnc_event_t;</code></pre>
+  </section>
+
+  <!-- ============ 6. TLV ============ -->
+  <section id="tlv">
+    <h2><span class="num">6</span>TLV message protocol</h2>
+    <p class="lead-p">Every message on the wire is Tag–Length–Value. One byte of tag identifies the message; one length byte (extend to two if a value can exceed 255 bytes) gives the value size; the value is the payload. Messages can be nested — a keep-alive's value is itself a small run of TLVs.</p>
+
+    <figure>
+      <svg viewBox="0 0 820 190" role="img" aria-label="TLV frame layout: one tag byte, one length byte, then N value bytes, with a keep-alive example whose value contains nested timestamp, measurement and mode TLVs.">
+        <g class="svg-mono" font-size="13">
+          <rect x="20"  y="30" width="120" height="54" rx="7" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="2"/>
+          <text x="80"  y="55" text-anchor="middle" font-weight="600" fill="currentColor">TAG</text>
+          <text x="80"  y="72" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)">1 byte</text>
+          <rect x="150" y="30" width="120" height="54" rx="7" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="2"/>
+          <text x="210" y="55" text-anchor="middle" font-weight="600" fill="currentColor">LENGTH</text>
+          <text x="210" y="72" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)">1 byte = N</text>
+          <rect x="280" y="30" width="510" height="54" rx="7" class="svg-fill-s2 svg-stroke" stroke-width="2"/>
+          <text x="535" y="55" text-anchor="middle" font-weight="600" fill="currentColor">VALUE</text>
+          <text x="535" y="72" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)">N bytes — may nest further TLVs</text>
+        </g>
+        <!-- nested example -->
+        <line x1="330" y1="84" x2="150" y2="120" stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="740" y1="84" x2="800" y2="120" stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="3 3"/>
+        <g class="svg-mono" font-size="10.5" fill="var(--ink-soft)">
+          <rect x="20"  y="122" width="150" height="40" rx="6" class="svg-fill-surface svg-stroke" stroke-width="1"/><text x="95" y="146" text-anchor="middle">T=timestamp</text>
+          <rect x="180" y="122" width="330" height="40" rx="6" class="svg-fill-surface svg-stroke" stroke-width="1"/><text x="345" y="146" text-anchor="middle">T=measurement { temp, hum, light, batt }</text>
+          <rect x="520" y="122" width="270" height="40" rx="6" class="svg-fill-surface svg-stroke" stroke-width="1"/><text x="655" y="146" text-anchor="middle">T=mode</text>
+        </g>
+        <text x="20" y="182" class="svg-mono" font-size="10.5" fill="var(--ink-faint)">Example: KEEP_ALIVE value = nested [timestamp][measurement][mode]</text>
+      </svg>
+      <figcaption><b>Figure 4.</b> A flat TLV frame; complex payloads nest child TLVs inside the value, so the parser is one recursive routine.</figcaption>
+    </figure>
+
+    <div class="grid g2">
+      <div>
+        <h4>Central → LNC (commands)</h4>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Tag</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td class="mono-col">SET_TEMP_NORMAL</td><td>Normal temperature range</td></tr>
+              <tr><td class="mono-col">SET_TEMP_WARNING</td><td>Warning temperature range</td></tr>
+              <tr><td class="mono-col">SET_HUM_NORMAL / _WARNING</td><td>Humidity lower boundaries</td></tr>
+              <tr><td class="mono-col">SET_LIGHT_NORMAL / _WARNING</td><td>Lighting lower boundaries</td></tr>
+              <tr><td class="mono-col">SET_BATT_NORMAL / _WARNING</td><td>Battery lower boundaries</td></tr>
+              <tr><td class="mono-col">SET_RTC</td><td>Set date &amp; time</td></tr>
+              <tr><td class="mono-col">GET_TIME</td><td>Read current system time</td></tr>
+              <tr><td class="mono-col">GET_DATA_RANGE</td><td>Measurements for a time range</td></tr>
+              <tr><td class="mono-col">GET_EVENTS_RANGE</td><td>Events for a time range</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h4>LNC → Central (reports)</h4>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Tag</th><th>Priority</th></tr></thead>
+            <tbody>
+              <tr><td class="mono-col">KEEP_ALIVE</td><td><span class="pill e">high</span></td></tr>
+              <tr><td class="mono-col">EVT_MODE_CHANGE</td><td><span class="pill w">medium</span></td></tr>
+              <tr><td class="mono-col">EVT_OBJECT</td><td><span class="pill w">medium</span></td></tr>
+              <tr><td class="mono-col">EVT_STARTUP</td><td><span class="pill w">medium</span></td></tr>
+              <tr><td class="mono-col">DATA_REPORT</td><td><span class="pill n">low</span></td></tr>
+              <tr><td class="mono-col">TIME_REPLY</td><td><span class="pill n">low</span></td></tr>
+              <tr><td class="mono-col">ACK / NACK</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:14px;color:var(--ink-soft)">Send order is strictly keep-alive → event → data, so status never starves behind a bulk data reply.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7. COMM INTERFACE ============ -->
+  <section id="comm">
+    <h2><span class="num">7</span>Transport-independent communication</h2>
+    <p class="lead-p">The spec's key constraint: UART today, Ethernet (or anything) tomorrow, with no change elsewhere. Achieve it with a function-pointer interface. The Communication module builds and parses TLV against this vtable and never names UART; only one small file implements it per transport.</p>
+<pre><code><span class="kw">typedef struct</span> {
+    <span class="kw">int</span> (*init)(<span class="kw">void</span>);
+    <span class="kw">int</span> (*send)(<span class="kw">const uint8_t</span> *buf, <span class="kw">size_t</span> len);
+    <span class="kw">int</span> (*recv)(<span class="kw">uint8_t</span> *buf, <span class="kw">size_t</span> cap, <span class="kw">size_t</span> *out_len);
+} comm_transport_t;
+
+<span class="cmt">/* one of these is selected at build/config time — nothing else changes */</span>
+<span class="kw">extern const</span> comm_transport_t uart_transport;
+<span class="kw">extern const</span> comm_transport_t eth_transport;</code></pre>
+    <div class="note">
+      <span class="lbl">Why it satisfies the spec</span>
+      <p>The physical transport becomes a single configuration detail behind three function pointers. Monitor, Event, Keep-Alive and the rest hand byte buffers to <code>comm_send()</code>; they can't tell UART from Ethernet, which is exactly the boundary the functional definition's NOTE demands.</p>
+    </div>
+  </section>
+
+  <!-- ============ 8. PERSISTENCE ============ -->
+  <section id="persist">
+    <h2><span class="num">8</span>Persistence — Flash config &amp; rolling logs</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Configuration in Flash</h4>
+        <p>The <code>lnc_config_t</code> struct lives in a reserved Flash sector, tagged with <code>magic</code>. At boot the Configuration module reads it; if the sentinel is missing (first boot) it loads compiled-in defaults and writes them back. Every accepted <code>SET_*</code> command re-persists and raises a config-changed event.</p>
+      </div>
+      <div class="card">
+        <h4>Rolling 7-day log</h4>
+        <p>The Log module names each file by date and appends measurement lines. It keeps at most 7 files; on the 8th day it deletes the oldest before opening the new one. Needs a filesystem — <b>FatFS on SD</b> is the natural fit on Nucleo; a flash-backed file layer works if no card is present.</p>
+      </div>
+    </div>
+    <div class="note q">
+      <span class="lbl">Decide early</span>
+      <p>The events file and the day-named log files imply a real filesystem. Confirm your board has an SD slot (or budget external flash + a file layer). This choice ripples into Log, Event, and the <code>GET_DATA_RANGE</code> / <code>GET_EVENTS_RANGE</code> replies.</p>
+    </div>
+  </section>
+
+  <!-- ============ 9. HARDWARE ============ -->
+  <section id="hw">
+    <h2><span class="num">9</span>Hardware peripheral map</h2>
+    <p class="lead-p">A typical Nucleo mapping — adjust pin/peripheral choices to the exact board and shield you're using. The point is which STM32 peripheral class each function needs.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Function</th><th>Peripheral</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Battery (potentiometer)</td><td class="mono-col">ADC</td><td>Single channel; scale counts → the configured boundary units.</td></tr>
+          <tr><td>Temp / Humidity</td><td class="mono-col">I²C or 1-Wire</td><td>e.g. HTS221 (I²C) or DHT22 (1-Wire). Temp read as a signed range.</td></tr>
+          <tr><td>Light</td><td class="mono-col">ADC / I²C</td><td>LDR on ADC, or a digital lux sensor (BH1750).</td></tr>
+          <tr><td>Sonar (object)</td><td class="mono-col">TIM input capture / EXTI</td><td>Ultrasonic echo timing in the direction of travel; runs continuously.</td></tr>
+          <tr><td>RGB LED</td><td class="mono-col">GPIO or TIM PWM</td><td>Green / Yellow / Red per mode &amp; object state.</td></tr>
+          <tr><td>Alarm</td><td class="mono-col">TIM PWM / GPIO</td><td>Buzzer; on in Error / object-detected, stopped by the button.</td></tr>
+          <tr><td>Button</td><td class="mono-col">EXTI</td><td>Interrupt stops the active alarm.</td></tr>
+          <tr><td>Clock</td><td class="mono-col">RTC</td><td>Set by <code>SET_RTC</code>; sourced by Init at startup; timestamps everything.</td></tr>
+          <tr><td>Config / logs</td><td class="mono-col">Flash · SD (FatFS)</td><td>Config in internal Flash; day-named files on SD.</td></tr>
+          <tr><td>Watchdog</td><td class="mono-col">IWDG</td><td>Independent HW watchdog; reset cause read from RCC CSR flags at boot.</td></tr>
+          <tr><td>Link</td><td class="mono-col">USART · Ethernet</td><td>Behind the transport vtable (§7).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 10. UPSTREAM ============ -->
+  <section id="upstream">
+    <h2><span class="num">10</span>Central Computer &amp; Ground Station</h2>
+    <p class="lead-p">Out of the firmware scope but part of the system contract the LNC must satisfy.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Central Computer — 4 modules</h4>
+        <p><b>Communication (LNC-facing):</b> same TLV protocol, transport-swappable, a listener that routes received messages to the right module.</p>
+        <p><b>Management Command:</b> builds &amp; sends the <code>SET_*</code> / <code>GET_*</code> commands; handles responses.</p>
+        <p><b>Log:</b> prints and persists logs to files.</p>
+        <p><b>Data Collection &amp; Analysis:</b> stores LNC data &amp; events in a DB, produces reports by criteria. Keeps one week of data.</p>
+      </div>
+      <div class="card">
+        <h4>Ground Station</h4>
+        <p>Requests, over Ethernet, the data the Central Computer holds for a given time window — both logged measurements and the events that occurred in that period. Read-only consumer of stored history.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PART 2 ================= -->
+  <span class="part-tag">Part 2 — Fleet Management System · C++</span>
+
+  <section id="classes">
+    <h2><span class="num">11</span>Class model</h2>
+    <p class="lead-p">One abstract base, two concrete submarine types, and the supporting entities. Polymorphism carries the per-type differences (display, mission update); the fleet holds base pointers and never switches on type.</p>
+
+    <figure>
+      <svg viewBox="0 0 860 520" role="img" aria-label="UML class diagram: abstract Submarine base with ResearchSubmarine and CombatSubmarine subclasses; CombatSubmarine composes a CentralComputer and links partner submarines; Message references a sender; Fleet aggregates submarines.">
+        <defs>
+          <marker id="inh" viewBox="0 0 14 14" refX="12" refY="7" markerWidth="15" markerHeight="15" orient="auto">
+            <path d="M0,0 L12,7 L0,14 z" fill="var(--surface)" stroke="currentColor" stroke-width="1.3"/>
+          </marker>
+          <marker id="diamond" viewBox="0 0 16 12" refX="14" refY="6" markerWidth="16" markerHeight="12" orient="auto">
+            <path d="M1,6 L7,1 L13,6 L7,11 z" fill="var(--accent)" stroke="var(--accent)"/>
+          </marker>
+          <marker id="ohead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- Submarine (abstract) -->
+        <rect x="300" y="14" width="260" height="128" rx="6" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="2"/>
+        <text x="430" y="34" text-anchor="middle" class="svg-sans" font-size="14" font-weight="700" font-style="italic" fill="currentColor">«abstract» Submarine</text>
+        <line x1="300" y1="44" x2="560" y2="44" stroke="var(--accent)" stroke-width="1"/>
+        <text x="312" y="61" class="svg-mono" font-size="10.5" fill="var(--ink-soft)"># serial : string   # name : string</text>
+        <text x="312" y="77" class="svg-mono" font-size="10.5" fill="var(--ink-soft)"># mission : Mission*  (null = available)</text>
+        <text x="312" y="93" class="svg-mono" font-size="10.5" fill="var(--ink-soft)"># inbox : vector&lt;Message&gt;</text>
+        <line x1="300" y1="102" x2="560" y2="102" stroke="var(--accent)" stroke-width="1"/>
+        <text x="312" y="119" class="svg-mono" font-size="10.5" fill="var(--ink)">+ isAvailable() : bool</text>
+        <text x="312" y="134" class="svg-mono" font-size="10.5" fill="var(--ink)">+ display() = 0   + updateMission() = 0</text>
+
+        <!-- Research -->
+        <rect x="70" y="250" width="250" height="104" rx="6" class="svg-fill-surface svg-stroke" stroke-width="1.6"/>
+        <text x="195" y="270" text-anchor="middle" class="svg-sans" font-size="13" font-weight="700" fill="currentColor">ResearchSubmarine</text>
+        <line x1="70" y1="280" x2="320" y2="280" class="svg-stroke" stroke-width="1"/>
+        <text x="82" y="297" class="svg-mono" font-size="10.5" fill="var(--ink-soft)">- researchers : vector&lt;string&gt;</text>
+        <text x="82" y="313" class="svg-mono" font-size="10.5" fill="var(--ink-soft)">- topic : string</text>
+        <line x1="70" y1="322" x2="320" y2="322" class="svg-stroke" stroke-width="1"/>
+        <text x="82" y="339" class="svg-mono" font-size="10.5" fill="var(--ink)">+ display()  + updateMission()</text>
+
+        <!-- Combat -->
+        <rect x="540" y="250" width="288" height="120" rx="6" class="svg-fill-surface svg-stroke" stroke-width="1.6"/>
+        <text x="684" y="270" text-anchor="middle" class="svg-sans" font-size="13" font-weight="700" fill="currentColor">CombatSubmarine</text>
+        <line x1="540" y1="280" x2="828" y2="280" class="svg-stroke" stroke-width="1"/>
+        <text x="552" y="296" class="svg-mono" font-size="10.5" fill="var(--ink-soft)">- missionDesc, commander : string</text>
+        <text x="552" y="311" class="svg-mono" font-size="10.5" fill="var(--ink-soft)">- personnel : int</text>
+        <text x="552" y="326" class="svg-mono" font-size="10.5" fill="var(--ink-soft)">- partners : vector&lt;CombatSubmarine*&gt;</text>
+        <line x1="540" y1="335" x2="828" y2="335" class="svg-stroke" stroke-width="1"/>
+        <text x="552" y="352" class="svg-mono" font-size="10.5" fill="var(--ink)">+ display() + updateMission() + sendMsg()</text>
+
+        <!-- CentralComputer -->
+        <rect x="600" y="430" width="200" height="66" rx="6" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="1.6"/>
+        <text x="700" y="452" text-anchor="middle" class="svg-sans" font-size="12.5" font-weight="700" fill="currentColor">CentralComputer</text>
+        <text x="700" y="472" text-anchor="middle" class="svg-mono" font-size="10" fill="var(--ink-faint)">from Part 1 · works with sensors</text>
+
+        <!-- Message -->
+        <rect x="60" y="430" width="210" height="66" rx="6" class="svg-fill-s2 svg-stroke" stroke-width="1.6"/>
+        <text x="165" y="452" text-anchor="middle" class="svg-sans" font-size="12.5" font-weight="700" fill="currentColor">Message</text>
+        <text x="165" y="472" text-anchor="middle" class="svg-mono" font-size="10" fill="var(--ink-faint)">content : string · sender : Submarine*</text>
+
+        <!-- Fleet -->
+        <rect x="300" y="430" width="230" height="66" rx="6" class="svg-fill-s2 svg-stroke" stroke-width="1.6"/>
+        <text x="415" y="452" text-anchor="middle" class="svg-sans" font-size="12.5" font-weight="700" fill="currentColor">Fleet / Menu</text>
+        <text x="415" y="472" text-anchor="middle" class="svg-mono" font-size="10" fill="var(--ink-faint)">vector&lt;Submarine*&gt; · 10 operations</text>
+
+        <!-- inheritance edges -->
+        <path d="M320 250 C300 200 360 175 388 142" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#inh)"/>
+        <path d="M600 250 C640 200 500 175 472 142" stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#inh)"/>
+
+        <!-- composition combat -> central -->
+        <path d="M690 370 L697 430" stroke="var(--accent)" stroke-width="1.6" fill="none" marker-start="url(#diamond)"/>
+        <text x="712" y="404" class="svg-mono" font-size="10" fill="var(--accent-ink)">owns 1</text>
+
+        <!-- combat partners self-assoc -->
+        <path d="M828 300 C868 300 868 250 828 262" stroke="currentColor" stroke-width="1.3" fill="none" marker-end="url(#ohead)"/>
+        <text x="838" y="238" class="svg-mono" font-size="9.5" fill="var(--ink-faint)">partners *</text>
+
+        <!-- fleet aggregates submarines -->
+        <path d="M415 430 L430 142" stroke="var(--accent)" stroke-width="1.4" fill="none" marker-start="url(#diamond)" stroke-dasharray="5 3"/>
+        <text x="440" y="300" class="svg-mono" font-size="10" fill="var(--accent-ink)">holds *</text>
+
+        <!-- message -> submarine sender -->
+        <path d="M270 452 C300 452 300 100 300 92" stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#ohead)"/>
+        <text x="230" y="420" class="svg-mono" font-size="9.5" fill="var(--ink-faint)">sender →</text>
+      </svg>
+      <figcaption><b>Figure 5.</b> Solid triangle = inheritance; filled diamond = composition/aggregation; open arrow = association. The Fleet holds <code>Submarine*</code> and dispatches through virtual methods.</figcaption>
+    </figure>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Class</th><th>Holds</th><th>Key behaviour</th></tr></thead>
+        <tbody>
+          <tr><td class="mono-col">Submarine <em>(abstract)</em></td><td>serial, name, mission ptr, inbox</td><td><code>isAvailable()</code>, <code>receiveMessage()</code>, <code>displayMessages()</code>; pure-virtual <code>display()</code> &amp; <code>updateMission()</code>.</td></tr>
+          <tr><td class="mono-col">ResearchSubmarine</td><td>researchers[], topic</td><td>Overrides display/updateMission with research fields.</td></tr>
+          <tr><td class="mono-col">CombatSubmarine</td><td>missionDesc, commander, personnel, partners[], CentralComputer</td><td>Overrides display/updateMission; <code>sendMessage()</code>; <code>addPartner()</code>.</td></tr>
+          <tr><td class="mono-col">CentralComputer</td><td>(from Part 1)</td><td>Composed by CombatSubmarine — owned object, destroyed with it.</td></tr>
+          <tr><td class="mono-col">Message</td><td>content, sender ptr</td><td>Value stored in a submarine's inbox; keeps the sender reference.</td></tr>
+          <tr><td class="mono-col">Fleet / Menu</td><td>vector&lt;Submarine*&gt;</td><td>Owns the submarines, runs the 10-option menu, resolves serials.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="menu">
+    <h2><span class="num">12</span>Menu → method mapping</h2>
+    <p class="lead-p">The ten operations map onto Fleet methods; polymorphism absorbs the per-type differences so the menu code has no <code>if (type == combat)</code> ladder.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>#</th><th>Operation</th><th>Fleet method → dispatch</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Add a submarine</td><td class="mono-col">add() → new Research/Combat by chosen type</td></tr>
+          <tr><td>2</td><td>Display all submarines</td><td class="mono-col">displayAll() → sub-&gt;display() (virtual)</td></tr>
+          <tr><td>3</td><td>Search by serial number</td><td class="mono-col">find(serial) → Submarine*</td></tr>
+          <tr><td>4</td><td>Assign a mission</td><td class="mono-col">assign() → set mission, mark unavailable</td></tr>
+          <tr><td>5</td><td>Update mission details</td><td class="mono-col">sub-&gt;updateMission() (virtual, per type)</td></tr>
+          <tr><td>6</td><td>End a mission</td><td class="mono-col">endMission() → clear mission, mark available</td></tr>
+          <tr><td>7</td><td>Associate combat partners</td><td class="mono-col">combat-&gt;addPartner(other) — combat only</td></tr>
+          <tr><td>8</td><td>Send a message</td><td class="mono-col">combat-&gt;sendMessage(to, content)</td></tr>
+          <tr><td>9</td><td>Display received messages</td><td class="mono-col">sub-&gt;displayMessages()</td></tr>
+          <tr><td>10</td><td>Exit</td><td class="mono-col">tear down, free owned submarines</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="oop">
+    <h2><span class="num">13</span>OOP mechanics to demonstrate</h2>
+    <div class="grid g2">
+      <div class="card"><h4>Inheritance</h4><p>Common state/behaviour on <code>Submarine</code>; the two concrete types add only their own fields. No duplicated serial/name/inbox logic.</p></div>
+      <div class="card"><h4>Polymorphism</h4><p>Pure-virtual <code>display()</code> and <code>updateMission()</code> let the menu act on <code>Submarine*</code> uniformly. A virtual destructor is mandatory so <code>delete</code> through a base pointer runs the right cleanup.</p></div>
+      <div class="card"><h4>Composition</h4><p><code>CombatSubmarine</code> <em>has-a</em> <code>CentralComputer</code> by value — created and destroyed with its owner, exactly the "belongs to" wording in the brief.</p></div>
+      <div class="card"><h4>Association</h4><p>Partners and message senders are <em>references</em>, not owners: <code>CombatSubmarine*</code> / <code>Submarine*</code> that point at fleet-owned objects. Never <code>delete</code> through these.</p></div>
+      <div class="card"><h4>Encapsulation</h4><p>Fields are protected/private; state changes (assign, end, message) go through methods that keep invariants — e.g. assigning a mission always flips availability.</p></div>
+      <div class="card"><h4>Ownership</h4><p>Prefer <code>vector&lt;unique_ptr&lt;Submarine&gt;&gt;</code> in the Fleet for single, clear ownership; keep raw pointers only as non-owning observers. Otherwise match every <code>new</code> with a <code>delete</code> and a virtual base destructor.</p></div>
+    </div>
+  </section>
+
+  <section id="open">
+    <h2><span class="num">14</span>Open questions to settle first</h2>
+    <p class="lead-p">Four points in the brief are genuinely ambiguous. Resolve them with your instructor before coding — each changes a data structure or class relationship.</p>
+    <ol>
+      <li><b>Central Computer ownership.</b> The brief says "each submarine has a central computer" but then "belongs to each combat submarine." This blueprint puts it on <code>CombatSubmarine</code> only (the explicit clause). Confirm it isn't meant for both types.</li>
+      <li><b>"All the missions its fleet was managing."</b> The requirement that a combat submarine track "all the missions that its fleet was managing" is worded loosely. Clarify whether that's a shared mission registry, or just the partners list for the current mission.</li>
+      <li><b>Mission as a class vs. inline fields.</b> Mission details differ by type. Decide whether <code>Mission</code> is its own class (cleaner for "assign / update / end") or the fields live directly on each subclass. The class model above keeps a thin <code>Mission</code> pointer for the available/assigned flag.</li>
+      <li><b>Filesystem for logs.</b> (Part 1) Day-named log files + events file need a filesystem — confirm SD/FatFS availability on your Nucleo, or plan an external-flash file layer.</li>
+    </ol>
+  </section>
+
+  <hr class="div">
+  <p style="color:var(--ink-faint);font-size:13.5px;font-family:'IBM Plex Mono',monospace;max-width:none">Design only — no schedule, no code yet. Say the word and I'll scaffold either target: the LNC firmware skeleton (modules + queues + TLV codec + transport vtable) or the C++ fleet (headers + class stubs + menu loop).</p>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">SW-AD-LNC-001 · Submarine Monitoring System · Architecture &amp; Design reference · derived from the Software Functional Definition</div>
+</footer>

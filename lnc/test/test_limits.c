@@ -1,5 +1,5 @@
 #include "test_util.h"
-#include "limits.h"
+#include "lnc_limits.h"
 
 int main(void) {
     /* range: normal 10..30, warning 0..40 */

@@ -1,4 +1,4 @@
-#include "limits.h"
+#include "lnc_limits.h"
 
 lnc_mode_t limits_classify_range(int16_t v, int16_t nlo, int16_t nhi, int16_t wlo, int16_t whi) {
     if (v >= nlo && v <= nhi) return MODE_NORMAL;
