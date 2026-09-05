@@ -1,6 +1,8 @@
 CC      ?= cc
-CFLAGS  := -std=c11 -Wall -Wextra -Isrc/core -Itest
-CORE    := $(wildcard src/core/*.c)
+CFLAGS  := -std=c11 -Wall -Wextra -Isrc/core -Isrc/app -Itest
+# Pure, host-buildable sources: all of core plus the app scheduler helper.
+# main.c is intentionally excluded (it pulls in STM32 HAL and only builds on target).
+CORE    := $(wildcard src/core/*.c) src/app/sched.c
 TESTS   := $(wildcard test/test_*.c)
 
 test:
