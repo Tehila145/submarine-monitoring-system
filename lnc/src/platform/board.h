@@ -1,45 +1,49 @@
 #ifndef BOARD_H
 #define BOARD_H
-/* HARDWARE CONTRACT — fill every item from your CubeMX .ioc once the STM32
- * project exists. Platform code references ONLY these names. Do not hardcode
- * handles/pins elsewhere. Anything left as a TODO here blocks the on-target
- * tasks (13-15) until resolved. See HARDWARE.md for the full checklist. */
+/* HARDWARE CONTRACT for the Submarine LNC on Nucleo-L476RG.
+ * Pin/peripheral choices mirror the workspace example projects (see
+ * CUBEMX_SETUP.md). Platform code references ONLY these names. Fill the three
+ * TODO(board) items (battery/light/sonar) once decided. */
 
-#include "main.h"   /* CubeMX-generated: HAL types + *_Pin / *_GPIO_Port macros */
+#include "main.h"   /* CubeMX-generated HAL types + peripheral defines */
 
-/* --- Sensors --------------------------------------------------------------
- * TODO(board): which parts and buses? Declare the CubeMX handles you use and
- * document the read sequence for each sensor in HARDWARE.md. Examples of what
- * MUST be provided (names are yours to choose to match CubeMX):
- *   extern ADC_HandleTypeDef  hadc_battery;   // potentiometer channel
- *   #define BOARD_BATTERY_ADC_CHANNEL  ADC_CHANNEL_x
- *   extern I2C_HandleTypeDef  hi2c_env;        // temp/humidity (if I2C)
- *   // + light sensor interface, + sonar timer/pins
- */
+/* Peripheral handles created by CubeMX (declared in main.c). */
+extern UART_HandleTypeDef huart2;   /* Central link (ST-Link VCP) */
+extern SPI_HandleTypeDef  hspi1;    /* SD card (FatFS) */
+extern TIM_HandleTypeDef  htim5;    /* DHT microsecond timing */
+extern TIM_HandleTypeDef  htim3;    /* buzzer PWM (channel 1) */
+extern RTC_HandleTypeDef  hrtc;     /* calendar / epoch */
+extern IWDG_HandleTypeDef hiwdg;    /* independent watchdog */
 
-/* --- RGB LED (3 lines) ----------------------------------------------------
- * TODO(board): LED_R_Pin/Port, LED_G_Pin/Port, LED_B_Pin/Port from CubeMX. */
+#define BOARD_CENTRAL_UART   (&huart2)
 
-/* --- Alarm / buzzer -------------------------------------------------------
- * TODO(board): ALARM_Pin/Port (GPIO) or a TIM PWM channel handle. */
+/* --- RGB LED (PC0/PC1/PC2) --- */
+#define BOARD_LED_R_PORT   GPIOC
+#define BOARD_LED_R_PIN    GPIO_PIN_0
+#define BOARD_LED_G_PORT   GPIOC
+#define BOARD_LED_G_PIN    GPIO_PIN_1
+#define BOARD_LED_B_PORT   GPIOC
+#define BOARD_LED_B_PIN    GPIO_PIN_2
+/* "Yellow" = Red + Green on. */
 
-/* --- Button (stops the alarm) --------------------------------------------
- * TODO(board): BUTTON_Pin + the EXTI line; note active-high/low. */
+/* --- Buzzer: TIM3 channel 1 (PB4) --- */
+#define BOARD_BUZZER_TIM      (&htim3)
+#define BOARD_BUZZER_CHANNEL  TIM_CHANNEL_1
 
-/* --- RTC ------------------------------------------------------------------
- * TODO(board): extern RTC_HandleTypeDef hrtc; and the epoch<->calendar policy. */
+/* --- Button: on-board B1 (PC13, EXTI13) --- */
+#define BOARD_BUTTON_PIN   GPIO_PIN_13   /* handled in HAL_GPIO_EXTI_Callback */
 
-/* --- Watchdog -------------------------------------------------------------
- * TODO(board): extern IWDG_HandleTypeDef hiwdg; and the configured timeout. */
+/* --- DHT temp/humidity: data on PB5, timing via TIM5 --- */
+#define BOARD_DHT_PORT     GPIOB
+#define BOARD_DHT_PIN      GPIO_PIN_5
+#define BOARD_DHT_TIM      (&htim5)
 
-/* --- Config storage (internal Flash) -------------------------------------
- * TODO(board): reserved sector/bank base+size for the config blob. */
+/* --- SD card chip-select: PB6 --- */
+#define BOARD_SD_CS_PORT   GPIOB
+#define BOARD_SD_CS_PIN    GPIO_PIN_6
 
-/* --- Log storage ----------------------------------------------------------
- * TODO(board): CONFIRM the medium. Is an SD card present (SPI/SDIO + FatFS)?
- * If not, define the external-flash/ring-buffer scheme for day-named logs. */
-
-/* --- Central link (transport) --------------------------------------------
- * TODO(board): extern UART_HandleTypeDef huart_central; (+ Ethernet later). */
+/* --- TODO(board): battery (potentiometer) — ADC1 channel; pin e.g. PA0. --- */
+/* --- TODO(board): light sensor — ADC1 channel or I2C; pin TBD.          --- */
+/* --- TODO(board): sonar (object) — TIM input-capture; trigger/echo TBD. --- */
 
 #endif
