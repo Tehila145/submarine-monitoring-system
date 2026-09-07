@@ -10,7 +10,7 @@
 A two-part final project defined in `final project.pdf` (in the repo root):
 
 - **Part 1 — LNC End Unit firmware** (STM32, C): a "Local Node Controller" inside a submarine with **nine software modules** (Monitor, Object Detection, Event, Log, Communication, Configuration, Init, Keep-Alive, Watchdog). It samples sensors, drives an RGB LED + buzzer on mode changes, persists config + rotating logs, feeds a hardware watchdog, and exchanges **TLV** (Tag-Length-Value) messages with a Central Computer over a transport-independent link. **This is the part actively being built.**
-- **Part 2 — Fleet Management System** (C++): a separate OOP console app (research/combat submarines, missions, messaging, a 10-option menu). **Not started yet** — a full TDD plan exists (see §8).
+- **Part 2 — Fleet Management System** (C++): a separate OOP console app (research/combat submarines, missions, messaging, a 10-option menu). **COMPLETE** — built test-first in `fleet/` (repo). All 10 menu operations, both submarine types, associations, and mission-scoped messaging; 7 test suites pass via `make test`. Built with plain `clang++` + a Makefile + a tiny assert harness (no cmake/GoogleTest, since neither is available in this environment — trivial to port to GoogleTest if a submission needs it). Run the app: `cd fleet && make fleet && ./fleet`.
 
 The spec also describes a Central Computer and a Ground Station (upstream of the LNC) — out of scope for the firmware itself but they define the protocol contract.
 
@@ -185,6 +185,6 @@ Frame = `[tag:1][length:1][value:length]`; complex values nest child TLVs. Tag n
 3. **RX + command execution** — re-enable receiving as interrupt/DMA-driven, wire `command_handle`'s results (config persist, RTC set, range queries) — currently stubbed/disabled.
 4. **Object detection (sonar)** — add the sonar read for `objectdet_logic`.
 5. **Config persistence in Flash** — currently config resets to defaults each boot; implement `store_config` in internal Flash.
-6. **Part 2 (C++ fleet)** — execute its plan; it's pure software with GoogleTest, no hardware.
+6. ~~Part 2 (C++ fleet)~~ — **DONE** (see `fleet/`).
 
 Every core module is already unit-tested (`make test` = 15 suites green), so lean on those when changing logic.
