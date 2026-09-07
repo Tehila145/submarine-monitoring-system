@@ -58,8 +58,8 @@ The repo `lnc/src/core/*` and the project `Core/Src/lnc/*` core files are copies
 | RTC | PC14/PC15 (LSE) | `hrtc` | `RTC` | ✅ working (epoch conversion) |
 | Watchdog | — | IWDG, `hiwdg` (presc 32, reload 4095 ≈ 4 s) | `Watchdog` | ✅ refreshed every 500 ms |
 | SD card (logs) | PA5/PA6/PA7 + PB6 CS | SPI1 + FATFS | `SDCard` | configured in CubeMX, **not wired in firmware yet** |
-| **Light** | *TBD* | ADC (not configured) | — | ⚠️ **stubbed = 700** |
-| **Battery (potentiometer)** | *TBD* | ADC (not configured) | — | ⚠️ **stubbed = 3300** |
+| **Light (LDR)** | PA1 | ADC1_IN6, `hadc1` | — | ✅ **real** (bright~4095, covered~1255) |
+| **Battery (potentiometer)** | PA0 | ADC1_IN5, `hadc1` | — | ✅ **real** (0–4095) |
 | **Object detection (sonar)** | *TBD* | timer input capture | — | ⚠️ **stubbed = not present** |
 
 Note: SD's SPI1 takes PA5/PA6/PA7, which is why the RGB LED is on PC0/1/2 (not the usual on-board LD2 on PA5).
@@ -95,7 +95,7 @@ Note: SD's SPI1 takes PA5/PA6/PA7, which is why the RGB LED is on PC0/1/2 (not t
 
 ✅ **Working on real hardware, verified:**
 - Super-loop runs continuously (stable 35 s+ with no hang after the DHT fix).
-- Monitor: **temperature + humidity are REAL** (DHT11 on PB5). Light + battery are stubs.
+- Monitor: **all four channels are REAL** — temp + humidity (DHT11 on PB5), light (LDR on PA1/ADC1_IN6), battery (pot on PA0/ADC1_IN5). Mode machine verified on hardware (covering the LDR flips NORMAL↔WARNING with EVENT lines).
 - Mode evaluation (NORMAL/WARNING/ERROR), Event decisions, RTC timestamps, IWDG refresh.
 - USART2 output at 115200.
 - TLV keep-alive encoding + a host-side decoder (proven end-to-end).
@@ -111,7 +111,7 @@ Note: SD's SPI1 takes PA5/PA6/PA7, which is why the RGB LED is on PC0/1/2 (not t
 
 2. **`handle_rx()` is DISABLED** (commented in `lnc_app_poll` as `(void)handle_rx;`). Reason: polled `HAL_UART_Receive` in a tight loop caused a UART overrun that wedged TX. There's no Central Computer sending commands yet, so RX isn't needed. **When you build the command path, re-enable RX as interrupt- or DMA-driven, not polled.**
 
-⏳ **Not done yet:** light + battery (ADC), object detection (sonar), SD/FATFS logging (so log + data-retrieval commands are stubbed), the whole RX/command execution path on hardware, and all of Part 2 (C++ fleet).
+⏳ **Not done yet:** object detection (sonar), SD/FATFS logging (so log + data-retrieval commands are stubbed), the whole RX/command execution path on hardware, config persistence in Flash, and all of Part 2 (C++ fleet). (Light + battery ADC: **done**.)
 
 **Current demo config:** temp limits are tuned so breathing on the DHT walks the modes: ≤28 °C NORMAL, 29–33 WARNING, ≥34 ERROR (in `Core/Inc/config_defaults.h`). These are demo values, not spec-mandated (the spec doesn't fix defaults).
 
