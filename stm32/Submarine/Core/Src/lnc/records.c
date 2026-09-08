@@ -33,6 +33,10 @@ int record_event(uint8_t* buf, uint32_t cap, const lnc_event_t* e) {
         uint8_t mm[2] = { (uint8_t)e->data.transition.from, (uint8_t)e->data.transition.to };
         n = tlv_write(inner+off, sizeof(inner)-(uint32_t)off, TAG_MODE, mm, 2); if (n<0) return -1; off+=n;
     }
+    if (e->src == SRC_OBJECT) {
+        uint8_t flag = e->data.object.detected ? 1u : 0u;   /* so Central can tell DETECTED vs cleared */
+        n = tlv_write(inner+off, sizeof(inner)-(uint32_t)off, TAG_EVENT_FLAG, &flag, 1); if (n<0) return -1; off+=n;
+    }
     if (off > 255) return -1;
     return tlv_write(buf, cap, RPT_EVENT, inner, (uint8_t)off);
 }

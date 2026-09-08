@@ -59,6 +59,21 @@ int main() {
     EXPECT(re.type == ReportType::Event && re.e.ts == 946684955u &&
            re.e.src == 0 && re.e.from_mode == 0 && re.e.to_mode == 2);
 
+    // parse an event: OBJECT detected (must carry through the TAG_EVENT_FLAG byte)
+    {
+        uint8_t oi[32]; int ooff = 0, on;
+        uint8_t ots[4]; bytes_put_u32(ots, 946684970u);
+        on = tlv_write(oi + ooff, (uint32_t)(sizeof(oi) - ooff), TAG_TIMESTAMP, ots, 4); ooff += on;
+        uint8_t osrc = 1;   // OBJECT
+        on = tlv_write(oi + ooff, (uint32_t)(sizeof(oi) - ooff), TAG_EVENT_SRC, &osrc, 1); ooff += on;
+        uint8_t oflag = 1;  // detected
+        on = tlv_write(oi + ooff, (uint32_t)(sizeof(oi) - ooff), TAG_EVENT_FLAG, &oflag, 1); ooff += on;
+        std::vector<uint8_t> oe(ooff + 2);
+        tlv_write(oe.data(), (uint32_t)oe.size(), RPT_EVENT, oi, (uint8_t)ooff);
+        Report ro = parseReport(oe.data(), oe.size());
+        EXPECT(ro.type == ReportType::Event && ro.e.src == 1 && ro.e.detected == true);
+    }
+
     // parse RSP_TIME
     uint8_t tb[4]; bytes_put_u32(tb, 12345u);
     std::vector<uint8_t> tf(6);

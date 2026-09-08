@@ -29,5 +29,6 @@
 #define TAG_MEASUREMENT        0x11
 #define TAG_MODE               0x12
 #define TAG_EVENT_SRC          0x13
+#define TAG_EVENT_FLAG         0x14  /* 1 byte: OBJECT->detected (0/1)        */
 
 #endif

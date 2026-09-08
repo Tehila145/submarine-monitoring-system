@@ -75,6 +75,7 @@ Report parseReport(const uint8_t* fr, std::size_t len) {
         if (child(val, vlen, TAG_TIMESTAMP, &cv, &cl) && cl == 4) r.e.ts = bytes_get_u32(cv);
         if (child(val, vlen, TAG_EVENT_SRC, &cv, &cl) && cl >= 1) r.e.src = cv[0];
         if (child(val, vlen, TAG_MODE, &cv, &cl) && cl == 2) { r.e.from_mode = cv[0]; r.e.to_mode = cv[1]; }
+        if (child(val, vlen, TAG_EVENT_FLAG, &cv, &cl) && cl >= 1 && r.e.src == 1) r.e.detected = (cv[0] != 0);
     } else if (tag == RSP_TIME) {
         r.type = ReportType::Time;
         if (vlen >= 4) r.time = bytes_get_u32(val);
