@@ -82,38 +82,39 @@ Note: SD's SPI1 takes PA5/PA6/PA7, which is why the RGB LED is on PC0/1/2 (not t
 - `hal_indicators.c` — `led_set(color)`, `alarm_set(on)` (TIM3 PWM), button flag + `HAL_GPIO_EXTI_Callback`.
 - `hal_time.c` — `rtc_now()`/`rtc_set()` (epoch↔RTC calendar).
 - `hal_watchdog.c` — `wd_refresh()` (IWDG), `reset_cause()` (RCC flags).
-- `hal_sensors.c` — DHT read for temp/humidity (cached, one read per ≥2 s); light/battery/object are **stubs**.
-- `transport_uart.c` — `transport_send`/`transport_poll` over USART2 (transport-independent seam).
+- `hal_sensors.c` — DHT temp/humidity (PB5), ADC light+battery (PA1/PA0), and IR object detection (PB10, latched). All real.
+- `store_sd.c` — FatFS-over-SPI Log module: day-file logging + 7-day rotation, events file, config persistence (`CONFIG.BIN`), range queries, and `ls`/`cat`.
+- `transport_uart.c` — `transport_send` over USART2 (transport-independent seam).
 - `DHT.c`/`DHT.h` — copied from `DHT_Ex`, **patched** with an iteration guard (see §6).
-- `lnc_app.c` — the super-loop + queues.
+- `lnc_app.c` — the super-loop + queues + the console/protocol modes + RX.
 
-**Central Computer / RX:** `command.c` fully parses all 10 management commands (set 8 limits, SET_RTC, GET_TIME) + the two range-retrieval instructions, and is unit-tested. But the **RX path is currently disabled on hardware** (see §5).
+**Central Computer / RX:** `command.c` parses all management commands (8 limits, SET_RTC, GET_TIME) + the two range-retrieval instructions (unit-tested). RX is **live** — interrupt-driven, dispatched to `command_handle` in protocol mode (see §5). A host-side `lnc/tools/central.py` drives the binary protocol.
 
 ---
 
 ## 5. Current state (what works / what's off)
 
-✅ **Working on real hardware, verified:**
-- Super-loop runs continuously (stable 35 s+ with no hang after the DHT fix).
-- Monitor: **all four channels are REAL** — temp + humidity (DHT11 on PB5), light (LDR on PA1/ADC1_IN6), battery (pot on PA0/ADC1_IN5). Mode machine verified on hardware (covering the LDR flips NORMAL↔WARNING with EVENT lines).
-- Mode evaluation (NORMAL/WARNING/ERROR), Event decisions, RTC timestamps, IWDG refresh.
-- USART2 output at 115200.
-- TLV keep-alive encoding + a host-side decoder (proven end-to-end).
+✅ **ALL NINE LNC modules verified on real hardware:**
+- **Monitor** — 4 real channels: temp+humidity (DHT11 PB5), light (LDR PA1), battery (pot PA0).
+- **Object Detection** — IR receiver on PB10 (point a remote at it); latched detect/clear → events.
+- **Event** — RGB LED (PC7=R/PC8=G/PC6=B, active-high) + buzzer (TIM3 PB4) + events file + Central notify.
+- **Log** — SD/FatFS day-files + 7-day rotation + events file.
+- **Communication** — TLV, keep-alive (6 s), events, RX commands, range retrieval; console + binary modes.
+- **Configuration** — limits + SET commands, persisted to `CONFIG.BIN` (survives reboot).
+- **Init** — config load-or-default, reset cause, startup event.
+- **Keep-Alive** — timestamp+measurement+mode every 6 s (protocol mode).
+- **Watchdog** — IWDG refresh + reset-cause reporting.
+- Part 2 (C++ Fleet): **complete** (see `fleet/`).
 
-⚙️ **Two special modes / temporary states you must know about:**
+⚙️ **Runtime mode toggle (`s_protocol` in `lnc_app.c`, default = console):**
 
-1. **`LNC_CONSOLE_MODE` (in `lnc_app.c`, currently `1`):** the board prints **human-readable text** over USART2 (so it's readable in `screen`) instead of the binary TLV protocol. Lines look like:
-   ```
-   T=24C  H=54%  L=700  B=3300  mode=NORMAL
-   >> EVENT: mode NORMAL -> WARNING
-   ```
-   Set `LNC_CONSOLE_MODE 0` to send the real binary TLV protocol (keep-alive every 6 s, events, data records) — needed when the Central Computer exists. In console mode, Monitor samples every **2 s** (for responsiveness); in protocol mode it's the spec's **5 s**.
+- **Console mode (default at boot):** human-readable text + ASCII commands over USART2, readable in `screen`. Status lines `T=… H=… L=… B=… mode=…` every 2 s; `>> EVENT: …` lines. Commands: `help now rtc tn tw ls cat get getev led ir proto`.
+- **Protocol mode:** the binary TLV machine protocol (keep-alive 6 s, event/data frames, binary command RX). Enter it with the `proto` command (or run `lnc/tools/central.py`, which sends `proto` then drives it). **RESET returns to console.** Monitor samples 2 s in console, 5 s (spec) in protocol.
+- RX is **interrupt-driven** (was NOT polled — polling caused a UART overrun wedge; see §6).
 
-2. **`handle_rx()` is DISABLED** (commented in `lnc_app_poll` as `(void)handle_rx;`). Reason: polled `HAL_UART_Receive` in a tight loop caused a UART overrun that wedged TX. There's no Central Computer sending commands yet, so RX isn't needed. **When you build the command path, re-enable RX as interrupt- or DMA-driven, not polled.**
+**Config:** first-boot defaults live in `Core/Inc/config_defaults.h` (demo-tuned: temp ≤28 NORMAL, light/battery ADC thresholds). After first boot, limits load from `CONFIG.BIN` on the SD card, so **whatever you last set persists** (that's why a stale `tn 10 22` can make it boot in WARNING — just `tn 10 32` to reset).
 
-⏳ **Not done yet:** object detection (sonar), SD/FATFS logging (so log + data-retrieval commands are stubbed), the whole RX/command execution path on hardware, config persistence in Flash, and all of Part 2 (C++ fleet). (Light + battery ADC: **done**.)
-
-**Current demo config:** temp limits are tuned so breathing on the DHT walks the modes: ≤28 °C NORMAL, 29–33 WARNING, ≥34 ERROR (in `Core/Inc/config_defaults.h`). These are demo values, not spec-mandated (the spec doesn't fix defaults).
+⏳ **Not done / open:** the standalone **Central Computer** program (spec §3) and **Ground Station** (§4) — described in the spec but unclear if required deliverables; confirm scope. Everything in the LNC itself is done.
 
 ---
 
