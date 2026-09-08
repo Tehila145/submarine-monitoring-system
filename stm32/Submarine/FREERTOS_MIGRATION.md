@@ -32,6 +32,10 @@ tasks.
      `USE_COUNTING_SEMAPHORES = Enabled`.
    - `CHECK_FOR_STACK_OVERFLOW = Option2`, `USE_MALLOC_FAILED_HOOK = Enabled`
      (cheap safety during bring-up).
+   - **`USE_NEWLIB_REENTRANT = Enabled`** (Advanced Settings) — REQUIRED: our
+     tasks call `snprintf`/`strtok`/`strtoul` (newlib, non-reentrant by default);
+     this gives each task its own reentrancy context. CubeMX will prompt about
+     this when FreeRTOS is enabled.
 4. **Leave the auto-created `defaultTask`** as-is. We won't use CubeMX's Tasks &
    Queues panel — all our tasks/queues/mutexes are created from code so they live
    in version control, not the `.ioc`.
