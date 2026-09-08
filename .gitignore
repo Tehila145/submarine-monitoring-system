@@ -10,3 +10,19 @@ fleet/fleet
 
 # C++ central build artifact
 central/central
+
+# Python/debug leftovers
+__pycache__/
+*.pyc
+*.log
+
+# STM32CubeIDE build outputs
+stm32/**/Debug/
+stm32/**/Release/
+stm32/**/*.elf
+stm32/**/*.map
+stm32/**/*.list
+stm32/**/*.o
+stm32/**/*.d
+stm32/**/*.su
+stm32/**/*.cyclo
