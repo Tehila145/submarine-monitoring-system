@@ -13,6 +13,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <ctime>
 #include <glob.h>
 
 using namespace central;
@@ -89,6 +90,13 @@ int main(int argc, char** argv) {
     serial.sendText("proto\r\n");     // flip the LNC into protocol mode
     pump(comm, 400);
     comm.poll();
+
+    // Time sync (spec §2.7): push the host's current UTC time to the LNC on
+    // connect, so its RTC reflects real wall-clock time with no manual setting.
+    uint32_t nowEpoch = (uint32_t)std::time(nullptr);
+    mgmt.setRtc(nowEpoch);
+    std::cout << "Synced LNC clock to " << nowEpoch << " (host UTC time)\n";
+    pump(comm, 400);
 
     const char* MENU =
         "\n=== Central Computer ===\n"
