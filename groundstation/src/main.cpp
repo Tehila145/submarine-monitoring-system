@@ -17,7 +17,7 @@ static std::string srcName(uint8_t s)  { const char* n[] = {"MONITOR","OBJECT","
 
 static std::string when(uint32_t ts) {
     std::time_t t = (std::time_t)ts;
-    std::tm* g = std::gmtime(&t);
+    std::tm* g = std::localtime(&t);   // show the viewer's local wall-clock time
     char b[24];
     if (g && std::strftime(b, sizeof(b), "%Y-%m-%d %H:%M:%S", g)) return b;
     return std::to_string(ts);
