@@ -171,7 +171,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    lnc_app_poll();
+    /* Unreached: the FreeRTOS scheduler owns execution after osKernelStart(). */
   }
   /* USER CODE END 3 */
 }
@@ -621,10 +621,12 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
-  /* Infinite loop */
+  lnc_app_start();                 /* create queues, mutexes, and the worker tasks */
+  /* This default task becomes the Watchdog module (spec §2.9). */
   for(;;)
   {
-    osDelay(1);
+    lnc_app_watchdog_step();       /* supervised IWDG refresh */
+    osDelay(250);
   }
   /* USER CODE END 5 */
 }
