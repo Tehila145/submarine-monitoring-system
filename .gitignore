@@ -7,3 +7,6 @@ build/
 
 # C++ fleet build artifact
 fleet/fleet
+
+# C++ central build artifact
+central/central
