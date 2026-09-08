@@ -116,7 +116,17 @@ Note: SD's SPI1 takes PA5/PA6/PA7, which is why the RGB LED is on PC0/1/2 (not t
 
 ✅ **Central Computer (spec §3): COMPLETE** — built in C++ in `central/`, reusing the LNC's `tlv.c`/`bytes.c`/`protocol.h` directly. All four modules: Communication (transport-independent, self-syncing listener), Management Command, Log, Data Collection & Analysis (DB + 7-day retention + reports). Unit-tested (`cd central && make test`); menu-driven program (`make central && ./central`) auto-detects the port, flips the LNC to protocol mode, drives commands, and stores/reports keep-alive+event+data.
 
-⏳ **Only open item:** the **Ground Station** (§4: requests stored data/events over a period from the Central) — small; a thin client of the Central's stored data. Confirm whether it's a required deliverable.
+✅ **Ground Station (spec §4): COMPLETE** — built in C++ in `groundstation/`, a client of the Central Computer over **Ethernet (TCP)**, per §1.2. It requests logged measurement data and events for a time range and displays them. Reuses the LNC codec + the shared `central/ground_protocol.{h,cpp}` (TLV tags `0x40–0x44`) so the wire format is transport-independent.
+- **Central gains a Ground-facing server:** `central/GroundServer` + `central --serve [port=5555] [dbdir=.]`. It loads the database (from the CSV the Central saves), listens on `127.0.0.1`, and streams matching records back per request.
+- **Run the demo (two terminals):**
+  ```
+  cd central && ./central --serve 5555 <dir-with-measurements.csv+events.csv>
+  cd groundstation && make groundstation && ./groundstation 127.0.0.1 5555
+  ```
+  Menu: `1` retrieve log data (from to), `2` retrieve events (from to), `3` exit.
+- **Tested:** `central/test/test_ground_protocol.cpp` covers codec round-trips **and** a real TCP loopback against `GroundServer` (server on a thread, client requests a range, asserts the streamed records). `cd central && make test`.
+
+⏳ **Open / optional:** (a) FreeRTOS variant of the firmware (on a `freertos` branch, all logic modules reusable); (b) event wire format doesn't yet carry the object-detected / INIT-watchdog flags (~2-line fix, makes Central `object=` count non-zero); (c) demo/docs polish for submission.
 
 ---
 

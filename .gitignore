@@ -11,6 +11,9 @@ fleet/fleet
 # C++ central build artifact
 central/central
 
+# C++ ground station build artifact
+groundstation/groundstation
+
 # Python/debug leftovers
 __pycache__/
 *.pyc

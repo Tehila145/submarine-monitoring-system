@@ -5,8 +5,10 @@
 #include "central/Communication.h"
 #include "central/ManagementCommand.h"
 #include "central/Database.h"
+#include "central/GroundServer.h"
 #include "central/Log.h"
 #include <iostream>
+#include <cstdio>
 #include <sstream>
 #include <string>
 #include <chrono>
@@ -33,7 +35,28 @@ static std::string autodetect() {
     return p;
 }
 
+// Ground-facing server mode: the Central answers a Ground Station over Ethernet
+// (TCP), serving logged data / events from its database (loaded from CSV).
+//   central --serve [port=5555] [dbdir=.]
+static int runGroundServer(int argc, char** argv) {
+    std::setvbuf(stdout, nullptr, _IONBF, 0);   // show connection/serve logs live
+    uint16_t port = (argc > 2) ? (uint16_t)std::stoi(argv[2]) : 5555;
+    std::string dir = (argc > 3) ? argv[3] : ".";
+    Database db;
+    db.loadCsv(dir);
+    std::cout << "Central (Ground Station server) loaded " << db.measurements().size()
+              << " measurements + " << db.events().size() << " events from " << dir << "\n";
+    GroundServer gs(db);
+    if (!gs.listenOn(port)) { std::cerr << "Cannot bind port " << port << "\n"; return 1; }
+    std::cout << "Serving Ground Station on tcp://127.0.0.1:" << gs.port()
+              << "  (Ctrl-C to stop)\n";
+    gs.serveForever();
+    return 0;
+}
+
 int main(int argc, char** argv) {
+    if (argc > 1 && std::string(argv[1]) == "--serve") return runGroundServer(argc, argv);
+
     std::string port = argc > 1 ? argv[1] : autodetect();
     if (port.empty()) { std::cerr << "No /dev/cu.usbmodem* found; pass the port.\n"; return 1; }
     SerialTransport serial(port);

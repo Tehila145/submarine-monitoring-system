@@ -1,5 +1,5 @@
 CXX      ?= c++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Iinclude -I../lnc/src/core
+CXXFLAGS := -std=c++17 -Wall -Wextra -Iinclude -I../lnc/src/core -pthread
 # Reuse the LNC's C codec directly (compiled as C, bridged via extern "C").
 CORE_C   := ../lnc/src/core/tlv.c ../lnc/src/core/bytes.c
 ALLSRC   := $(wildcard src/*.cpp)
