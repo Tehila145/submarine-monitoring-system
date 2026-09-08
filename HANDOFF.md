@@ -114,7 +114,9 @@ Note: SD's SPI1 takes PA5/PA6/PA7, which is why the RGB LED is on PC0/1/2 (not t
 
 **Config:** first-boot defaults live in `Core/Inc/config_defaults.h` (demo-tuned: temp ≤28 NORMAL, light/battery ADC thresholds). After first boot, limits load from `CONFIG.BIN` on the SD card, so **whatever you last set persists** (that's why a stale `tn 10 22` can make it boot in WARNING — just `tn 10 32` to reset).
 
-⏳ **Not done / open:** the standalone **Central Computer** program (spec §3) and **Ground Station** (§4) — described in the spec but unclear if required deliverables; confirm scope. Everything in the LNC itself is done.
+✅ **Central Computer (spec §3): COMPLETE** — built in C++ in `central/`, reusing the LNC's `tlv.c`/`bytes.c`/`protocol.h` directly. All four modules: Communication (transport-independent, self-syncing listener), Management Command, Log, Data Collection & Analysis (DB + 7-day retention + reports). Unit-tested (`cd central && make test`); menu-driven program (`make central && ./central`) auto-detects the port, flips the LNC to protocol mode, drives commands, and stores/reports keep-alive+event+data.
+
+⏳ **Only open item:** the **Ground Station** (§4: requests stored data/events over a period from the Central) — small; a thin client of the Central's stored data. Confirm whether it's a required deliverable.
 
 ---
 
