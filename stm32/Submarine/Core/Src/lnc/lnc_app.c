@@ -1,5 +1,6 @@
 #include "lnc_app.h"
-#include "board.h"          /* HAL_GetTick, handles */
+#include "board.h"          /* HAL_GetTick, handles (hspi1) */
+#include "main.h"           /* SD_CS_Pin / SD_CS_GPIO_Port */
 #include "config.h"
 #include "lnc_limits.h"
 #include "monitor_logic.h"
@@ -479,6 +480,26 @@ static void KeepAliveTaskFn(void *arg) {
     }
 }
 
+/* Re-apply the SD-over-SPI settings that CubeMX's generated init doesn't carry
+ * (its .ioc leaves SPI1 at 4-bit / MISO no-pull / CS low). Kept here — in our own
+ * code — so they survive any future CubeMX regeneration rather than being silently
+ * reverted in the generated files. Required by user_diskio_spi.c. */
+static void sd_spi_fixups(void) {
+    /* MISO (PA6) needs a pull-up so it idles high when the card isn't driving. */
+    GPIO_InitTypeDef g = {0};
+    g.Pin       = GPIO_PIN_6;
+    g.Mode      = GPIO_MODE_AF_PP;
+    g.Pull      = GPIO_PULLUP;
+    g.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    g.Alternate = GPIO_AF5_SPI1;
+    HAL_GPIO_Init(GPIOA, &g);
+    /* SD needs 8-bit SPI frames (CubeMX default here is 4-bit). */
+    hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+    HAL_SPI_Init(&hspi1);
+    /* Deselect the card (CS idle high) before the FatFS driver runs. */
+    HAL_GPIO_WritePin(SD_CS_GPIO_Port, SD_CS_Pin, GPIO_PIN_SET);
+}
+
 /* ---------------- lifecycle ------------------------------------------------ */
 /* Pre-scheduler prep: peripherals are already MX_*_Init'd. No SD, no RTOS objects
  * (mutexes are NULL here, so LOCK/UNLOCK are no-ops and the single-threaded reads
@@ -488,6 +509,7 @@ void lnc_app_init(void) {
     config_load_defaults(&g_cfg);
     monitor_logic_reset();
     objectdet_logic_reset();
+    sd_spi_fixups();                /* SD needs 8-bit SPI / MISO pull-up / CS high */
     transport_init();
     rx_start();                     /* arm interrupt-driven command RX */
     led_init();                     /* configure RGB pins */
