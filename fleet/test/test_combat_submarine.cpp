@@ -37,5 +37,22 @@ int main() {
     a.endMission();
     EXPECT(a.isAvailable());
     EXPECT(a.partners().empty());
+
+    // Non-numeric / negative personnel must NOT crash — it re-prompts and
+    // accepts the first valid whole number (regression: std::stoi threw).
+    CombatSubmarine d("C-020", "Delta");
+    std::istringstream in3("Recon\nCmdr Z\nDave\n-3\n7\n");   // reject "Dave" & "-3", accept 7
+    std::ostringstream sink3;
+    d.assignMission(in3, sink3);
+    std::ostringstream out3; d.display(out3);
+    EXPECT(out3.str().find("Personnel: 7") != std::string::npos);
+
+    // Blank personnel defaults to 0.
+    CombatSubmarine e("C-021", "Echo");
+    std::istringstream in4("Recon\nCmdr Q\n\n");
+    std::ostringstream sink4;
+    e.assignMission(in4, sink4);
+    std::ostringstream out4; e.display(out4);
+    EXPECT(out4.str().find("Personnel: 0") != std::string::npos);
     REPORT();
 }

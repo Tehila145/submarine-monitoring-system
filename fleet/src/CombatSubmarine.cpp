@@ -21,9 +21,16 @@ void CombatSubmarine::updateMissionDetails(std::istream& in, std::ostream& out) 
     std::getline(in, line);
     commanderName_ = trim(line);
     out << "Combat personnel: ";
-    std::getline(in, line);
-    line = trim(line);
-    combatPersonnel_ = line.empty() ? 0 : std::stoi(line);
+    while (std::getline(in, line)) {
+        line = trim(line);
+        if (line.empty()) { combatPersonnel_ = 0; break; }   // blank = 0
+        try {
+            std::size_t used = 0;
+            int n = std::stoi(line, &used);
+            if (used == line.size() && n >= 0) { combatPersonnel_ = n; break; }
+        } catch (const std::exception&) { /* fall through to re-prompt */ }
+        out << "  Please enter a whole number (crew count): ";  // reject "Dave", "-3", "5x"
+    }
 }
 
 void CombatSubmarine::display(std::ostream& out) const {
