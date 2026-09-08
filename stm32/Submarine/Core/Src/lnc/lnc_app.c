@@ -510,6 +510,18 @@ void lnc_app_init(void) {
     monitor_logic_reset();
     objectdet_logic_reset();
     sd_spi_fixups();                /* SD needs 8-bit SPI / MISO pull-up / CS high */
+    /* External SW1 (D2 = PA10) as the alarm-stop button: EXTI on the falling edge,
+     * internally pulled up (button shorts to GND). Shares the EXTI15_10 IRQ that
+     * CubeMX already enabled for the on-board B1. Done here so it survives regen. */
+    {
+        GPIO_InitTypeDef b = {0};
+        b.Pin  = BOARD_BUTTON_PIN;
+        b.Mode = GPIO_MODE_IT_FALLING;
+        b.Pull = GPIO_PULLUP;
+        HAL_GPIO_Init(BOARD_BUTTON_PORT, &b);
+        HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+    }
     transport_init();
     rx_start();                     /* arm interrupt-driven command RX */
     led_init();                     /* configure RGB pins */

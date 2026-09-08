@@ -184,7 +184,7 @@ void EXTI15_10_IRQHandler(void)
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
-
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);   /* external SW1 on PA10 (alarm-stop) */
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 

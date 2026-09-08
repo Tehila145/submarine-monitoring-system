@@ -32,8 +32,11 @@ extern ADC_HandleTypeDef  hadc1;    /* battery + light (analog) */
 #define BOARD_BUZZER_TIM      (&htim3)
 #define BOARD_BUZZER_CHANNEL  TIM_CHANNEL_1
 
-/* --- Button: on-board B1 (PC13, EXTI13) --- */
-#define BOARD_BUTTON_PIN   GPIO_PIN_13   /* handled in HAL_GPIO_EXTI_Callback */
+/* --- Button: external SW1 on D2 = PA10 (EXTI10), active-low. The on-board B1
+ * (PC13) is covered by the shield, so we use SW1 instead. Configured in
+ * lnc_app_init(); handled in HAL_GPIO_EXTI_Callback. --- */
+#define BOARD_BUTTON_PORT  GPIOA
+#define BOARD_BUTTON_PIN   GPIO_PIN_10
 
 /* --- DHT temp/humidity: data on PB5, timing via TIM5 --- */
 #define BOARD_DHT_PORT     GPIOB
