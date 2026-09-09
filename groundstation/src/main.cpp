@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
             std::vector<Measurement> rows;
             if (!client.getLog(from, to, rows)) { std::cerr << "Request failed / disconnected.\n"; break; }
             std::cout << "\n-- Log data " << from << ".." << to << "  (" << rows.size() << " records) --\n";
-            std::cout << "  timestamp (UTC)        temp   hum  light  batt   mode\n";
+            std::cout << "  timestamp (local)      temp   hum  light  batt   mode\n";
             for (const auto& m : rows)
                 std::printf("  %-19s  %5d %5u %6u %5u   %s\n",
                             when(m.ts).c_str(), m.temp, m.hum, m.light, m.batt, modeName(m.mode).c_str());

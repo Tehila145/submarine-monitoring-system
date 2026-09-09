@@ -119,6 +119,8 @@ int main(int argc, char** argv) {
             int secs = 8; in >> secs;
             serial.sendText("proto\r\n");   // re-arm protocol mode in case the board reset to console
             pump(comm, 300);
+            mgmt.setRtc((uint32_t)std::time(nullptr));  // re-sync clock (board may have reset to 2000)
+            pump(comm, 200);
             rxCount = 0;                    // count only frames from this listen window
             std::cout << "Listening " << secs << "s...\n";
             pump(comm, secs * 1000);
