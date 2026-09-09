@@ -105,8 +105,12 @@ void Menu::doEndMission() {
 void Menu::doAssociate() {
     CombatSubmarine* a = readCombat(fleet_, in_, out_, "First combat serial: ");
     CombatSubmarine* b = readCombat(fleet_, in_, out_, "Second combat serial: ");
-    if (fleet_.associate(a, b)) out_ << "Associated.\n";
-    else out_ << "Cannot associate (need two distinct combat subs, both on a mission).\n";
+    if (fleet_.associate(a, b)) { out_ << "Associated.\n"; return; }
+    if (!a || !b)                          out_ << "Cannot associate: both serials must be existing combat submarines.\n";
+    else if (a == b)                       out_ << "Cannot associate: need two distinct submarines.\n";
+    else if (a->isAvailable() || b->isAvailable())
+                                           out_ << "Cannot associate: both must be on a mission first (option 4).\n";
+    else                                   out_ << "Cannot associate.\n";
 }
 
 void Menu::doSendMessage() {
@@ -115,8 +119,13 @@ void Menu::doSendMessage() {
     Submarine* to = fleet_.findBySerial(readLine(in_));
     out_ << "Message: ";
     std::string text = readLine(in_);
-    if (fleet_.sendMessage(from, to, text)) out_ << "Message sent.\n";
-    else out_ << "Cannot send (sender must be combat; both on the same mission).\n";
+    if (fleet_.sendMessage(from, to, text)) { out_ << "Message sent.\n"; return; }
+    if (!from)                     out_ << "Cannot send: sender must be an existing combat submarine.\n";
+    else if (!to)                  out_ << "Cannot send: no submarine has that recipient serial.\n";
+    else if (from == to)           out_ << "Cannot send: a submarine can't message itself.\n";
+    else if (from->isAvailable())  out_ << "Cannot send: sender is not on a mission yet (assign one with option 4).\n";
+    else if (to->isAvailable())    out_ << "Cannot send: recipient is not on a mission yet (assign one with option 4).\n";
+    else                           out_ << "Cannot send: the two are not on the same mission (associate them with option 7).\n";
 }
 
 void Menu::doDisplayMessages() {
