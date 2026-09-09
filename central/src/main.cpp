@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
     Database db;
     Log log("central.log");
     ManagementCommand mgmt(comm);
+    int rxCount = 0;                 // frames seen (used to detect a silent Listen)
 
     comm.setHandler([&](const Report& r) {
         std::ostringstream o;
@@ -83,7 +84,7 @@ int main(int argc, char** argv) {
         } else if (r.type == ReportType::Time) {
             o << "TIME       " << r.time;
         }
-        if (!o.str().empty()) log.line(o.str());
+        if (!o.str().empty()) { log.line(o.str()); ++rxCount; }
     });
 
     std::cout << "Central Computer on " << port << " @115200\n";
@@ -116,8 +117,14 @@ int main(int argc, char** argv) {
 
         if (ch == 1) {
             int secs = 8; in >> secs;
+            serial.sendText("proto\r\n");   // re-arm protocol mode in case the board reset to console
+            pump(comm, 300);
+            rxCount = 0;                    // count only frames from this listen window
             std::cout << "Listening " << secs << "s...\n";
             pump(comm, secs * 1000);
+            if (rxCount == 0)
+                std::cout << "(no frames received — the board is likely in console mode or was reset. "
+                             "Press its RESET once, and make sure nothing else (e.g. screen) holds the serial port.)\n";
         } else if (ch == 2) {
             mgmt.getTime(); pump(comm, 1500);
         } else if (ch == 3) {
