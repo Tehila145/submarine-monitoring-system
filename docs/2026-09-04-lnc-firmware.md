@@ -10,7 +10,7 @@
 
 **Course context:** Embedded systems course, Google Reichman Tech School. This is a course project, not a production system — the methodology is deliberately lean (no RTOS, no mocking framework); functional coverage of the specification is complete.
 
-**Spec:** `SUBMARINE_MONITORING_SYSTEM/final project.pdf` (§2 LNC End Unit, Figures 2–4) and the derived design doc `SUBMARINE_MONITORING_SYSTEM/architecture.html` (§1–10).
+**Spec:** `docs/final project.pdf` (§2 LNC End Unit, Figures 2–4) and the derived design doc `docs/architecture.html` (§1–10).
 
 ## Global Constraints
 

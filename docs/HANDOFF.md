@@ -7,7 +7,7 @@
 
 ## 1. What this project is
 
-A two-part final project defined in `final project.pdf` (in the repo root):
+A two-part final project defined in `docs/final project.pdf` (in docs/):
 
 - **Part 1 — LNC End Unit firmware** (STM32, C): a "Local Node Controller" inside a submarine with **nine software modules** (Monitor, Object Detection, Event, Log, Communication, Configuration, Init, Keep-Alive, Watchdog). It samples sensors, drives an RGB LED + buzzer on mode changes, persists config + rotating logs, feeds a hardware watchdog, and exchanges **TLV** (Tag-Length-Value) messages with a Central Computer over a transport-independent link. **This is the part actively being built.**
 - **Part 2 — Fleet Management System** (C++): a separate OOP console app (research/combat submarines, missions, messaging, a 10-option menu). **COMPLETE** — built test-first in `fleet/` (repo). All 10 menu operations, both submarine types, associations, and mission-scoped messaging; 7 test suites pass via `make test`. Built with plain `clang++` + a Makefile + a tiny assert harness (no cmake/GoogleTest, since neither is available in this environment — trivial to port to GoogleTest if a submission needs it). Run the app: `cd fleet && make fleet && ./fleet`.
@@ -25,7 +25,7 @@ The work lives in **two different folders**:
    - `lnc/` — the **host-testable core** C modules + `Makefile` + `tools/decode_serial.py`
    - `lnc/src/core/` — pure logic (no hardware), unit-tested on the host
    - `docs/` — two implementation plans (C++ fleet, LNC firmware)
-   - `architecture.html`, `class-diagram.html` — design docs (open in a browser)
+   - `docs/architecture.html`, `docs/class-diagram.html` — design docs (open in a browser)
    - `lnc/CUBEMX_SETUP.md`, `lnc/HARDWARE.md` — hardware setup notes
    - This folder **has git** — commit here.
 
@@ -174,8 +174,8 @@ The developer can also just use **STM32CubeIDE's GUI** to build/flash (Run/Debug
 
 - `docs/2026-09-04-lnc-firmware.md` — full TDD plan for the firmware (course-oriented, super-loop, no RTOS). Tasks 1–11 (pure core) are **done**; 12–15 (hardware) partially done.
 - `docs/2026-09-04-fleet-management-cpp.md` — full TDD plan for Part 2 (C++ fleet, GoogleTest). **Not started.**
-- `architecture.html` — system/module/mode/TLV design (open in browser).
-- `class-diagram.html` — C++ class model for Part 2.
+- `docs/architecture.html` — system/module/mode/TLV design (open in browser).
+- `docs/class-diagram.html` — C++ class model for Part 2.
 - `lnc/CUBEMX_SETUP.md` — the CubeMX peripheral checklist mapped to the example projects.
 - `lnc/HARDWARE.md` — hardware definition contract / decisions checklist.
 

@@ -8,7 +8,7 @@
 
 **Tech Stack:** C++17, CMake ≥ 3.14, GoogleTest (pulled via CMake `FetchContent`).
 
-**Spec:** `SUBMARINE_MONITORING_SYSTEM/final project.pdf` (OOP Part) and the derived design doc `SUBMARINE_MONITORING_SYSTEM/architecture.html` (§11–14) and `SUBMARINE_MONITORING_SYSTEM/class-diagram.html`.
+**Spec:** `docs/final project.pdf` (OOP Part) and the derived design doc `docs/architecture.html` (§11–14) and `docs/class-diagram.html`.
 
 ## Global Constraints
 

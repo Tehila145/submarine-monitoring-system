@@ -33,9 +33,9 @@ an object-oriented **Fleet Management System**. All parts speak a common
 | `central/` | Central Computer (C++), incl. the Ground-facing TCP server (`--serve`). |
 | `groundstation/` | Ground Station client (C++). |
 | `fleet/` | Fleet Management System (C++, OOP part). |
-| `architecture.html`, `class-diagram.html` | Design documents (open in a browser). |
+| `docs/architecture.html`, `docs/class-diagram.html` | Design documents (open in a browser). |
 | `docs/HANDOFF.md` | Detailed engineering notes: pin map, gotchas, build/flash steps. |
-| `final project.pdf` | The project specification. |
+| `docs/final project.pdf` | The project specification. |
 
 ## Tests
 
