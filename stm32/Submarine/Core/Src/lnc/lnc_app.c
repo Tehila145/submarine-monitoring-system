@@ -440,8 +440,18 @@ static void MonitorTaskFn(void *arg) {
         bool ok;
         LOCK(StoreMutex); ok = store_config_load(buf, sizeof(buf), &n); UNLOCK(StoreMutex);
         if (ok) { LOCK(StateMutex); ok = config_deserialize(&g_cfg, buf, n); UNLOCK(StateMutex); }
+        if (ok) {                            /* reject an out-of-range saved config: */
+            LOCK(StateMutex);                /* ADC lower bounds must be <= 4095 (12-bit), */
+            bool sane = g_cfg.light_norm_lo <= 4095 && g_cfg.light_warn_lo <= 4095 &&
+                        g_cfg.batt_norm_lo  <= 4095 && g_cfg.batt_warn_lo  <= 4095;
+            UNLOCK(StateMutex);              /* else a threshold can never be met and mode wedges */
+            if (!sane) ok = false;
+        }
         if (ok) cfg_loaded = true;
-        else    config_persist();           /* first boot: write defaults to CONFIG.BIN */
+        else {                               /* first boot OR corrupt config: restore defaults */
+            LOCK(StateMutex); config_load_defaults(&g_cfg); UNLOCK(StateMutex);
+            config_persist();
+        }
     }
     lnc_event_t se;
     init_logic_startup_event(g_reset_cause, rtc_now(), &se);

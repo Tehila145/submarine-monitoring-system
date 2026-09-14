@@ -29,3 +29,10 @@ stm32/**/*.o
 stm32/**/*.d
 stm32/**/*.su
 stm32/**/*.cyclo
+
+# Runtime DB saves from ./central (sample_db/ is the tracked demo data)
+/central/measurements.csv
+/central/events.csv
+
+# CubeIDE-regenerated settings churn
+stm32/Submarine/.settings/language.settings.xml
