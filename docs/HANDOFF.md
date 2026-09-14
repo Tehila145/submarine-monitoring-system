@@ -24,7 +24,7 @@ The work lives in **two different folders**:
    `/Users/tehilamenasheof/Claude/SUBMARINE_MONITORING_SYSTEM/`
    - `lnc/` — the **host-testable core** C modules + `Makefile` + `tools/decode_serial.py`
    - `lnc/src/core/` — pure logic (no hardware), unit-tested on the host
-   - `docs/superpowers/plans/` — two implementation plans (C++ fleet, LNC firmware)
+   - `docs/` — two implementation plans (C++ fleet, LNC firmware)
    - `architecture.html`, `class-diagram.html` — design docs (open in a browser)
    - `lnc/CUBEMX_SETUP.md`, `lnc/HARDWARE.md` — hardware setup notes
    - This folder **has git** — commit here.
@@ -172,8 +172,8 @@ The developer can also just use **STM32CubeIDE's GUI** to build/flash (Run/Debug
 
 ## 8. Plans & design docs (in the repo)
 
-- `docs/superpowers/plans/2026-09-04-lnc-firmware.md` — full TDD plan for the firmware (course-oriented, super-loop, no RTOS). Tasks 1–11 (pure core) are **done**; 12–15 (hardware) partially done.
-- `docs/superpowers/plans/2026-09-04-fleet-management-cpp.md` — full TDD plan for Part 2 (C++ fleet, GoogleTest). **Not started.**
+- `docs/2026-09-04-lnc-firmware.md` — full TDD plan for the firmware (course-oriented, super-loop, no RTOS). Tasks 1–11 (pure core) are **done**; 12–15 (hardware) partially done.
+- `docs/2026-09-04-fleet-management-cpp.md` — full TDD plan for Part 2 (C++ fleet, GoogleTest). **Not started.**
 - `architecture.html` — system/module/mode/TLV design (open in browser).
 - `class-diagram.html` — C++ class model for Part 2.
 - `lnc/CUBEMX_SETUP.md` — the CubeMX peripheral checklist mapped to the example projects.

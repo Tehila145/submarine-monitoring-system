@@ -34,7 +34,7 @@ an object-oriented **Fleet Management System**. All parts speak a common
 | `groundstation/` | Ground Station client (C++). |
 | `fleet/` | Fleet Management System (C++, OOP part). |
 | `architecture.html`, `class-diagram.html` | Design documents (open in a browser). |
-| `HANDOFF.md` | Detailed engineering notes: pin map, gotchas, build/flash steps. |
+| `docs/HANDOFF.md` | Detailed engineering notes: pin map, gotchas, build/flash steps. |
 | `final project.pdf` | The project specification. |
 
 ## Tests

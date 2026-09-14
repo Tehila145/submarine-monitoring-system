@@ -97,7 +97,7 @@ reset, which is the point of the module.
 - `StateMutex` — around `g_cfg` and `g_latest` read/modify (Monitor writes, KeepAlive/Comm read).
 
 ### Verification after the rewrite
-- Headless CubeIDE build (see `HANDOFF.md`) must succeed.
+- Headless CubeIDE build (see `../../docs/HANDOFF.md`) must succeed.
 - Flash + the same serial checks as bare-metal: console banner, `T=…` status,
   keep-alives in `proto` mode, events fire LED/alarm, SD logging, watchdog still
   resets on a deliberate hang.
